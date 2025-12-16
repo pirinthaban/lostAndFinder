@@ -17,13 +17,13 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _navigateToNext() async {
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 2));
     
     if (!mounted) return;
     
-    // TODO: Check authentication status and navigate accordingly
-    // For now, navigate to onboarding
-    context.go('/onboarding');
+    // Check if first time user
+    // For now, navigate to login
+    context.go('/login');
   }
 
   @override

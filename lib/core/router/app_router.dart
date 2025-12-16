@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/authentication/presentation/screens/splash_screen.dart';
 import '../../features/authentication/presentation/screens/onboarding_screen.dart';
+import '../../features/authentication/presentation/screens/login_screen.dart';
+import '../../features/authentication/presentation/screens/email_login_screen.dart';
 import '../../features/authentication/presentation/screens/phone_verification_screen.dart';
 import '../../features/authentication/presentation/screens/otp_screen.dart';
 import '../../features/authentication/presentation/screens/profile_setup_screen.dart';
@@ -29,6 +31,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/onboarding',
         name: 'onboarding',
         builder: (context, state) => const OnboardingScreen(),
+      ),
+      GoRoute(
+        path: '/login',
+        name: 'login',
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/email-login',
+        name: 'emailLogin',
+        builder: (context, state) => const EmailLoginScreen(),
       ),
       GoRoute(
         path: '/phone-verification',
