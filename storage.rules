@@ -1,0 +1,137 @@
+# Firebase Storage Security Rules
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+             firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    function isValidImage() {
+      return request.resource.contentType.matches('image/.*') &&
+             request.resource.size < 5 * 1024 * 1024; // 5MB limit
+    }
+    
+    function isValidDocument() {
+      return request.resource.contentType in ['application/pdf', 'image/jpeg', 'image/png'] &&
+             request.resource.size < 10 * 1024 * 1024; // 10MB limit
+    }
+
+    // Item Images
+    match /item_images/{userId}/{itemId}/{imageId} {
+      // Anyone authenticated can read
+      allow read: if isAuthenticated();
+      
+      // Users can upload images for their items
+      allow create: if isAuthenticated() && 
+                       isOwner(userId) &&
+                       isValidImage();
+      
+      // Users can delete their own item images
+      allow delete: if isAuthenticated() && 
+                       (isOwner(userId) || isAdmin());
+      
+      // No updates allowed (delete and recreate instead)
+      allow update: if false;
+    }
+
+    // Blurred Item Images (processed by Cloud Functions)
+    match /item_images_blurred/{userId}/{itemId}/{imageId} {
+      // Anyone authenticated can read
+      allow read: if isAuthenticated();
+      
+      // Only system can create blurred images
+      allow create, update, delete: if false;
+    }
+
+    // Proof Documents
+    match /proof_documents/{userId}/{claimId}/{documentId} {
+      // Only the uploader, item owner, and police can read
+      allow read: if isAuthenticated() &&
+                     (isOwner(userId) || 
+                      isAdmin() ||
+                      firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role in ['police', 'admin']);
+      
+      // Users can upload proof documents for their claims
+      allow create: if isAuthenticated() && 
+                       isOwner(userId) &&
+                       isValidDocument();
+      
+      // Users can delete their own documents
+      allow delete: if isAuthenticated() && 
+                       isOwner(userId);
+      
+      // No updates allowed
+      allow update: if false;
+    }
+
+    // User Avatars
+    match /user_avatars/{userId}/{fileName} {
+      // Anyone authenticated can read
+      allow read: if isAuthenticated();
+      
+      // Users can upload their own avatar
+      allow create, update: if isAuthenticated() && 
+                               isOwner(userId) &&
+                               isValidImage();
+      
+      // Users can delete their own avatar
+      allow delete: if isAuthenticated() && 
+                       isOwner(userId);
+    }
+
+    // Chat Media
+    match /chat_media/{chatId}/{messageId}/{mediaId} {
+      // Only chat participants can read
+      allow read: if isAuthenticated() &&
+                     request.auth.uid in firestore.get(/databases/(default)/documents/chats/$(chatId)).data.participants;
+      
+      // Chat participants can upload media
+      allow create: if isAuthenticated() &&
+                       request.auth.uid in firestore.get(/databases/(default)/documents/chats/$(chatId)).data.participants &&
+                       isValidImage();
+      
+      // Uploader can delete their own media
+      allow delete: if isAuthenticated();
+      
+      // No updates allowed
+      allow update: if false;
+    }
+
+    // Report Evidence
+    match /report_evidence/{reportId}/{evidenceId} {
+      // Only admins and report creator can read
+      allow read: if isAuthenticated() &&
+                     (isAdmin() ||
+                      request.auth.uid == firestore.get(/databases/(default)/documents/reports/$(reportId)).data.reporterUserId);
+      
+      // Report creator can upload evidence
+      allow create: if isAuthenticated() &&
+                       request.auth.uid == firestore.get(/databases/(default)/documents/reports/$(reportId)).data.reporterUserId &&
+                       isValidImage();
+      
+      // Report creator can delete evidence
+      allow delete: if isAuthenticated() &&
+                       request.auth.uid == firestore.get(/databases/(default)/documents/reports/$(reportId)).data.reporterUserId;
+      
+      // No updates allowed
+      allow update: if false;
+    }
+
+    // Default deny all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,246 @@
+# Lost & Found Firebase Project Configuration
+
+# Firestore Rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    function isPolice() {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['police', 'admin'];
+    }
+    
+    function hasRole(role) {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+    
+    function isParticipant(participants) {
+      return isAuthenticated() && request.auth.uid in participants;
+    }
+    
+    function rateLimit() {
+      return request.time > resource.data.lastUpdated + duration.value(1, 's');
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      // Anyone can read basic user info
+      allow read: if isAuthenticated();
+      
+      // Users can create their own profile
+      allow create: if isAuthenticated() && 
+                       isOwner(userId) &&
+                       request.resource.data.keys().hasAll(['email', 'phone', 'displayName']) &&
+                       request.resource.data.reputation == 0 &&
+                       request.resource.data.role == 'citizen';
+      
+      // Users can update their own profile (except role and reputation)
+      allow update: if isAuthenticated() && 
+                       isOwner(userId) &&
+                       !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'reputation']);
+      
+      // Only admins can delete users
+      allow delete: if isAdmin();
+      
+      // Admins can update any user
+      allow update: if isAdmin();
+    }
+
+    // Items Collection
+    match /items/{itemId} {
+      // Anyone authenticated can read active items
+      allow read: if isAuthenticated();
+      
+      // Users can create items with validation
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['type', 'category', 'title', 'description', 'location']) &&
+                       request.resource.data.type in ['lost', 'found'] &&
+                       request.resource.data.category in ['nic', 'passport', 'phone', 'wallet', 'bag', 'keys', 'documents', 'other'] &&
+                       request.resource.data.status == 'active' &&
+                       request.resource.data.images.size() <= 5;
+      
+      // Users can update their own items
+      allow update: if isAuthenticated() && 
+                       isOwner(resource.data.userId) &&
+                       rateLimit();
+      
+      // Users can delete their own items, admins can delete any
+      allow delete: if isAuthenticated() && 
+                       (isOwner(resource.data.userId) || isAdmin());
+    }
+
+    // Matches Collection
+    match /matches/{matchId} {
+      // Users can read matches related to their items
+      allow read: if isAuthenticated() &&
+                     (isOwner(get(/databases/$(database)/documents/items/$(resource.data.lostItemId)).data.userId) ||
+                      isOwner(get(/databases/$(database)/documents/items/$(resource.data.foundItemId)).data.userId) ||
+                      isAdmin());
+      
+      // Only system (cloud functions) can create matches
+      allow create: if false;
+      
+      // Users can update match status
+      allow update: if isAuthenticated() &&
+                       (isOwner(get(/databases/$(database)/documents/items/$(resource.data.lostItemId)).data.userId) ||
+                        isOwner(get(/databases/$(database)/documents/items/$(resource.data.foundItemId)).data.userId));
+      
+      // Admins can delete matches
+      allow delete: if isAdmin();
+    }
+
+    // Claims Collection
+    match /claims/{claimId} {
+      // Users can read claims they're involved in
+      allow read: if isAuthenticated() &&
+                     (isOwner(resource.data.claimantUserId) ||
+                      isOwner(resource.data.itemOwnerId) ||
+                      isPolice());
+      
+      // Users can create claims
+      allow create: if isAuthenticated() &&
+                       request.resource.data.claimantUserId == request.auth.uid &&
+                       request.resource.data.status == 'pending' &&
+                       exists(/databases/$(database)/documents/items/$(request.resource.data.itemId));
+      
+      // Claimants and item owners can update claims
+      allow update: if isAuthenticated() &&
+                       (isOwner(resource.data.claimantUserId) ||
+                        isOwner(resource.data.itemOwnerId) ||
+                        isPolice());
+      
+      // Users can delete their own pending claims
+      allow delete: if isAuthenticated() &&
+                       isOwner(resource.data.claimantUserId) &&
+                       resource.data.status == 'pending';
+    }
+
+    // Chats Collection
+    match /chats/{chatId} {
+      // Participants can read their chats
+      allow read: if isAuthenticated() && 
+                     isParticipant(resource.data.participants);
+      
+      // Users can create chats
+      allow create: if isAuthenticated() &&
+                       request.auth.uid in request.resource.data.participants &&
+                       request.resource.data.participants.size() == 2;
+      
+      // Participants can update chat metadata
+      allow update: if isAuthenticated() && 
+                       isParticipant(resource.data.participants);
+      
+      // Participants can delete (archive) chats
+      allow delete: if isAuthenticated() && 
+                       isParticipant(resource.data.participants);
+    }
+
+    // Messages Collection
+    match /messages/{messageId} {
+      // Participants can read messages
+      allow read: if isAuthenticated() &&
+                     isParticipant(get(/databases/$(database)/documents/chats/$(resource.data.chatId)).data.participants);
+      
+      // Users can create messages in their chats
+      allow create: if isAuthenticated() &&
+                       request.resource.data.senderId == request.auth.uid &&
+                       isParticipant(get(/databases/$(database)/documents/chats/$(request.resource.data.chatId)).data.participants) &&
+                       request.resource.data.text.size() <= 1000;
+      
+      // Senders can update their own messages (edit/delete)
+      allow update: if isAuthenticated() && 
+                       isOwner(resource.data.senderId);
+      
+      // Senders can delete their own messages
+      allow delete: if isAuthenticated() && 
+                       isOwner(resource.data.senderId);
+    }
+
+    // Reports Collection
+    match /reports/{reportId} {
+      // Users can read their own reports, admins can read all
+      allow read: if isAuthenticated() &&
+                     (isOwner(resource.data.reporterUserId) || isAdmin());
+      
+      // Users can create reports
+      allow create: if isAuthenticated() &&
+                       request.resource.data.reporterUserId == request.auth.uid &&
+                       request.resource.data.status == 'pending' &&
+                       request.resource.data.reason in ['spam', 'fraud', 'inappropriate', 'fake'];
+      
+      // Only admins can update reports
+      allow update: if isAdmin();
+      
+      // Users can delete their own pending reports
+      allow delete: if isAuthenticated() &&
+                       (isOwner(resource.data.reporterUserId) && resource.data.status == 'pending' || isAdmin());
+    }
+
+    // Police Verifications Collection
+    match /police_verifications/{verificationId} {
+      // Police, admins, and involved users can read
+      allow read: if isAuthenticated() &&
+                     (isPolice() ||
+                      isOwner(get(/databases/$(database)/documents/items/$(resource.data.itemId)).data.userId) ||
+                      isOwner(get(/databases/$(database)/documents/claims/$(resource.data.claimId)).data.claimantUserId));
+      
+      // Only police can create verifications
+      allow create: if isPolice() &&
+                       request.resource.data.officerId == request.auth.uid;
+      
+      // Police can update their own verifications
+      allow update: if isPolice() &&
+                       isOwner(resource.data.officerId);
+      
+      // Only admins can delete verifications
+      allow delete: if isAdmin();
+    }
+
+    // Notifications Collection
+    match /notifications/{notificationId} {
+      // Users can read their own notifications
+      allow read: if isAuthenticated() && 
+                     isOwner(resource.data.userId);
+      
+      // System creates notifications (via Cloud Functions)
+      allow create: if false;
+      
+      // Users can mark notifications as read
+      allow update: if isAuthenticated() && 
+                       isOwner(resource.data.userId) &&
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      
+      // Users can delete their own notifications
+      allow delete: if isAuthenticated() && 
+                       isOwner(resource.data.userId);
+    }
+
+    // Audit Logs Collection
+    match /audit_logs/{logId} {
+      // Only admins can read audit logs
+      allow read: if isAdmin();
+      
+      // System creates audit logs (via Cloud Functions)
+      allow create: if false;
+      
+      // No updates or deletes allowed
+      allow update, delete: if false;
+    }
+  }
+}
