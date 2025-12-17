@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/authentication/presentation/screens/splash_screen.dart';
 import '../../features/authentication/presentation/screens/onboarding_screen.dart';
+import '../../features/authentication/presentation/screens/terms_acceptance_screen.dart';
 import '../../features/authentication/presentation/screens/login_screen.dart';
 import '../../features/authentication/presentation/screens/email_login_screen.dart';
 import '../../features/authentication/presentation/screens/phone_verification_screen.dart';
@@ -14,6 +15,9 @@ import '../../features/claims/presentation/screens/claim_flow_screen.dart';
 import '../../features/chat/presentation/screens/chat_list_screen.dart';
 import '../../features/chat/presentation/screens/chat_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/profile/presentation/screens/my_posts_screen.dart';
+import '../../features/profile/presentation/screens/saved_items_screen.dart';
+import '../../features/profile/presentation/screens/activity_history_screen.dart';
 import '../../features/police/presentation/screens/police_dashboard_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -31,6 +35,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/onboarding',
         name: 'onboarding',
         builder: (context, state) => const OnboardingScreen(),
+      ),
+      GoRoute(
+        path: '/terms-acceptance',
+        name: 'termsAcceptance',
+        builder: (context, state) => const TermsAcceptanceScreen(),
       ),
       GoRoute(
         path: '/login',
@@ -73,7 +82,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/post-item',
         name: 'postItem',
         builder: (context, state) {
-          final itemType = state.extra as String?;
+          final extra = state.extra as Map<String, dynamic>?;
+          final itemType = extra?['itemType'] as String?;
           return PostItemScreen(itemType: itemType);
         },
       ),
@@ -116,6 +126,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/profile',
         name: 'profile',
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/my-posts',
+        name: 'myPosts',
+        builder: (context, state) => const MyPostsScreen(),
+      ),
+      GoRoute(
+        path: '/saved-items',
+        name: 'savedItems',
+        builder: (context, state) => const SavedItemsScreen(),
+      ),
+      GoRoute(
+        path: '/activity-history',
+        name: 'activityHistory',
+        builder: (context, state) => const ActivityHistoryScreen(),
       ),
 
       // Police Routes

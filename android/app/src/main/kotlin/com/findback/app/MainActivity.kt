@@ -1,4 +1,4 @@
-package com.example.lost_and_finder
+package com.findback.app
 
 import io.flutter.embedding.android.FlutterActivity
 

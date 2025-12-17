@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -21,9 +23,27 @@ class _SplashScreenState extends State<SplashScreen> {
     
     if (!mounted) return;
     
-    // Check if first time user
-    // For now, navigate to login
-    context.go('/login');
+    // Check SharedPreferences for first-time user status
+    final prefs = await SharedPreferences.getInstance();
+    final hasCompletedOnboarding = prefs.getBool('onboarding_completed') ?? false;
+    final hasAcceptedTerms = prefs.getBool('terms_accepted') ?? false;
+    
+    // Check if user is already logged in
+    final currentUser = FirebaseAuth.instance.currentUser;
+    
+    if (!hasCompletedOnboarding) {
+      // First time user - show onboarding
+      context.go('/onboarding');
+    } else if (!hasAcceptedTerms) {
+      // Onboarding done but terms not accepted
+      context.go('/terms-acceptance');
+    } else if (currentUser != null) {
+      // User is logged in and has completed onboarding/terms
+      context.go('/home');
+    } else {
+      // User has completed onboarding/terms but not logged in
+      context.go('/login');
+    }
   }
 
   @override
@@ -66,7 +86,7 @@ class _SplashScreenState extends State<SplashScreen> {
             
             // App Name
             const Text(
-              'Lost & Found',
+              'FindBack',
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,

@@ -15,27 +15,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<OnboardingPage> _pages = [
     OnboardingPage(
-      title: 'Find What You Lost',
-      description: 'Search for your lost items in a trusted community network across Sri Lanka',
-      icon: Icons.search,
+      title: 'Welcome to FindBack',
+      description: 'Your trusted Lost & Found community app. Connect with people who found what you lost, or help return items to their rightful owners.',
+      icon: Icons.waving_hand_rounded,
       color: const Color(0xFF1976D2),
     ),
     OnboardingPage(
-      title: 'Help Others Find',
-      description: 'Found something? Post it and help reunite people with their belongings',
-      icon: Icons.favorite,
+      title: 'Post Lost or Found Items',
+      description: 'Easily post photos and details of items you\'ve lost or found. Our AI-powered system helps match them automatically with high accuracy.',
+      icon: Icons.photo_camera_rounded,
       color: const Color(0xFFFF6B35),
     ),
     OnboardingPage(
-      title: 'AI-Powered Matching',
-      description: 'Our smart system automatically matches lost and found items for you',
-      icon: Icons.auto_awesome,
+      title: 'Chat & Verify Safely',
+      description: 'Connect with verified users through secure in-app chat. Verify ownership with proof before meeting in safe public locations.',
+      icon: Icons.chat_bubble_rounded,
       color: const Color(0xFF4CAF50),
     ),
     OnboardingPage(
-      title: 'Safe & Secure',
-      description: 'Verified users, secure chat, and police integration for your safety',
-      icon: Icons.verified_user,
+      title: 'Privacy & Security First',
+      description: 'Your data is protected with encryption. Phone numbers stay private, locations are approximate, and sensitive documents are auto-blurred.',
+      icon: Icons.security_rounded,
       color: const Color(0xFF9C27B0),
     ),
   ];
@@ -57,7 +57,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               alignment: Alignment.topRight,
               child: TextButton(
                 onPressed: () {
-                  context.go('/phone-verification');
+                  context.go('/terms-acceptance');
                 },
                 child: const Text('Skip'),
               ),
@@ -99,7 +99,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     if (_currentPage == _pages.length - 1) {
-                      context.go('/login');
+                      context.go('/terms-acceptance');
                     } else {
                       _pageController.nextPage(
                         duration: const Duration(milliseconds: 300),

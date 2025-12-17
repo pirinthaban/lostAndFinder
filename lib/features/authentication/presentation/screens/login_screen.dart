@@ -17,7 +17,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _signInWithGoogle() async {
     setState(() => _isLoading = true);
     try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      // Sign out first to ensure fresh sign-in
+      await GoogleSignIn().signOut();
+      
+      final GoogleSignInAccount? googleUser = await GoogleSignIn(
+        scopes: ['email'],
+      ).signIn();
+      
       if (googleUser == null) {
         setState(() => _isLoading = false);
         return;
@@ -34,7 +40,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Google Sign-In failed: $e')),
+          SnackBar(content: Text('Google Sign-In failed: ${e.toString()}')),
         );
       }
     } finally {
