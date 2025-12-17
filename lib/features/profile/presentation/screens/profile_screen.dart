@@ -112,6 +112,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _uploadProfileImage() async {
+    if (isUploadingImage) return; // Prevent multiple calls
+    
     try {
       final ImageSource? source = await showDialog<ImageSource>(
         context: context,
@@ -137,6 +139,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (source == null) return;
 
+      setState(() => isUploadingImage = true);
+
       final XFile? image = await _picker.pickImage(
         source: source,
         maxWidth: 512,
@@ -144,9 +148,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         imageQuality: 85,
       );
 
-      if (image == null) return;
-
-      setState(() => isUploadingImage = true);
+      if (image == null) {
+        setState(() => isUploadingImage = false);
+        return;
+      }
 
       // Upload to Cloudinary
       final cloudinaryUrl = Uri.parse('https://api.cloudinary.com/v1_1/dh6mb70f5/image/upload');

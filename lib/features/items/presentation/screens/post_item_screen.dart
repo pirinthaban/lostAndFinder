@@ -36,6 +36,7 @@ class _PostItemScreenState extends State<PostItemScreen> {
   final List<File> _selectedImages = [];
   final ImagePicker _picker = ImagePicker();
   bool _isSubmitting = false;
+  bool _isPickingImage = false;
   DateTime _selectedDate = DateTime.now();
 
   @override
@@ -48,12 +49,18 @@ class _PostItemScreenState extends State<PostItemScreen> {
   }
 
   Future<void> _pickImage() async {
+    if (_isPickingImage) return; // Prevent multiple calls
+    
     if (_selectedImages.length >= 5) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Maximum 5 images allowed')),
       );
       return;
     }
+
+    setState(() {
+      _isPickingImage = true;
+    });
 
     try {
       final XFile? image = await _picker.pickImage(
@@ -69,19 +76,33 @@ class _PostItemScreenState extends State<PostItemScreen> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking image: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error picking image: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isPickingImage = false;
+        });
+      }
     }
   }
 
   Future<void> _takePicture() async {
+    if (_isPickingImage) return; // Prevent multiple calls
+    
     if (_selectedImages.length >= 5) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Maximum 5 images allowed')),
       );
       return;
     }
+
+    setState(() {
+      _isPickingImage = true;
+    });
 
     try {
       final XFile? photo = await _picker.pickImage(
@@ -97,9 +118,17 @@ class _PostItemScreenState extends State<PostItemScreen> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error taking picture: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error taking picture: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isPickingImage = false;
+        });
+      }
     }
   }
 
