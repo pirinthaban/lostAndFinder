@@ -62,7 +62,7 @@ The signed APK will be at: `build\app\outputs\flutter-apk\app-release.apk`
 5. Folder: **/ (root)** or **/docs**
 6. Click **Save**
 
-Your site will be live at: `https://pirinthaban.github.io/lostAndFinder/`
+Your site will be live at: `https://pirinthaban.github.io/FindBack/`
 
 ### Step 5: Create GitHub Release
 
@@ -97,10 +97,10 @@ Download the APK below and install on your Android device (Android 5.0+)
 - Phone number for verification
 
 ## 🔗 Links
-- 🌐 Website: https://pirinthaban.github.io/lostAndFinder/
-- 📖 Privacy Policy: https://pirinthaban.github.io/lostAndFinder/privacy-policy.html
-- 📜 Terms: https://pirinthaban.github.io/lostAndFinder/terms-and-conditions.html
-- 🐛 Issues: https://github.com/pirinthaban/lostAndFinder/issues
+- 🌐 Website: https://pirinthaban.github.io/FindBack/
+- 📖 Privacy Policy: https://pirinthaban.github.io/FindBack/privacy-policy.html
+- 📜 Terms: https://pirinthaban.github.io/FindBack/terms-and-conditions.html
+- 🐛 Issues: https://github.com/pirinthaban/FindBack/issues
 
 ## ⚠️ Note
 This is an early release. Please report bugs and provide feedback!
@@ -135,7 +135,7 @@ If you want to publish on Play Store later:
    flutter build appbundle --release
    ```
 4. **Set up content rating** (everyone)
-5. **Fill privacy policy URL**: https://pirinthaban.github.io/lostAndFinder/privacy-policy.html
+5. **Fill privacy policy URL**: https://pirinthaban.github.io/FindBack/privacy-policy.html
 6. **Submit for review** (takes 1-7 days)
 
 ---
@@ -155,10 +155,10 @@ If you want to publish on Play Store later:
 
 ## 🔗 Your URLs After Publishing
 
-- **Website**: https://pirinthaban.github.io/lostAndFinder/
-- **Privacy Policy**: https://pirinthaban.github.io/lostAndFinder/privacy-policy.html
-- **Terms**: https://pirinthaban.github.io/lostAndFinder/terms-and-conditions.html
-- **Download**: https://github.com/pirinthaban/lostAndFinder/releases/latest
+- **Website**: https://pirinthaban.github.io/FindBack/
+- **Privacy Policy**: https://pirinthaban.github.io/FindBack/privacy-policy.html
+- **Terms**: https://pirinthaban.github.io/FindBack/terms-and-conditions.html
+- **Download**: https://github.com/pirinthaban/FindBack/releases/latest
 
 ---
 

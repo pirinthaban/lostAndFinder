@@ -80,7 +80,7 @@ if (-not $foundSensitive) {
     Write-Host "  git init" -ForegroundColor White
     Write-Host "  git add ." -ForegroundColor White
     Write-Host "  git commit -m `"Initial commit`"" -ForegroundColor White
-    Write-Host "  git remote add origin https://github.com/YOUR_USERNAME/lostAndFinder.git" -ForegroundColor White
+    Write-Host "  git remote add origin https://github.com/YOUR_USERNAME/FindBack.git" -ForegroundColor White
     Write-Host "  git push -u origin main" -ForegroundColor White
 } else {
     Write-Host "⚠️  Remove sensitive files before publishing!" -ForegroundColor Red

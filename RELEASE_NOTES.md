@@ -59,7 +59,7 @@
 ## 📥 Installation Instructions
 
 ### Method 1: Direct APK Installation
-1. Download `FindBack-v1.0.0.apk` from the [Releases page](https://github.com/pirinthaban/lostAndFinder/releases)
+1. Download `FindBack-v1.0.0.apk` from the [Releases page](https://github.com/pirinthaban/FindBack/releases)
 2. On your Android device, go to **Settings → Security**
 3. Enable **Install from Unknown Sources** (or **Install Unknown Apps** on newer Android versions)
 4. Open the downloaded APK file
@@ -89,12 +89,12 @@ This is the initial release of FindBack. All features are new!
 
 ## 🔗 Important Links
 
-- **🌐 Website:** https://pirinthaban.github.io/lostAndFinder/
-- **📖 Source Code:** https://github.com/pirinthaban/lostAndFinder
-- **🐛 Report Issues:** https://github.com/pirinthaban/lostAndFinder/issues
-- **📄 Privacy Policy:** https://pirinthaban.github.io/lostAndFinder/privacy-policy.html
-- **📜 Terms & Conditions:** https://pirinthaban.github.io/lostAndFinder/terms-and-conditions.html
-- **🔒 Security Guide:** https://pirinthaban.github.io/lostAndFinder/privacy-security-guide.html
+- **🌐 Website:** https://pirinthaban.github.io/FindBack/
+- **📖 Source Code:** https://github.com/pirinthaban/FindBack
+- **🐛 Report Issues:** https://github.com/pirinthaban/FindBack/issues
+- **📄 Privacy Policy:** https://pirinthaban.github.io/FindBack/privacy-policy.html
+- **📜 Terms & Conditions:** https://pirinthaban.github.io/FindBack/terms-and-conditions.html
+- **🔒 Security Guide:** https://pirinthaban.github.io/FindBack/privacy-security-guide.html
 
 ---
 
@@ -118,7 +118,7 @@ This is the initial release of FindBack. All features are new!
 - HTTPS for all communications
 - Regular security updates
 
-**Read our full [Privacy Policy](https://pirinthaban.github.io/lostAndFinder/privacy-policy.html) for details.**
+**Read our full [Privacy Policy](https://pirinthaban.github.io/FindBack/privacy-policy.html) for details.**
 
 ---
 
@@ -153,7 +153,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 Need help? Have questions?
 
-- **GitHub Issues:** https://github.com/pirinthaban/lostAndFinder/issues
+- **GitHub Issues:** https://github.com/pirinthaban/FindBack/issues
 - **Email:** support@findback.app *(coming soon)*
 
 ---

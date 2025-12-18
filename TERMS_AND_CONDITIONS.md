@@ -482,7 +482,7 @@ These Terms are written in English. Translations may be provided for convenience
 **Questions or Concerns?**
 
 **Email:** legal@findback.app *(coming soon)*  
-**GitHub:** [github.com/pirinthaban/lostAndFinder](https://github.com/pirinthaban/lostAndFinder)  
+**GitHub:** [github.com/pirinthaban/FindBack](https://github.com/pirinthaban/FindBack)  
 **In-App Support:** Settings → Help & Support  
 
 **Mailing Address:**  

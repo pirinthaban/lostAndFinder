@@ -70,4 +70,4 @@ This is the first public release of the Lost & Found Community App. The app is i
 
 ---
 
-[1.0.0]: https://github.com/pirinthaban/lostAndFinder/releases/tag/v1.0.0
+[1.0.0]: https://github.com/pirinthaban/FindBack/releases/tag/v1.0.0

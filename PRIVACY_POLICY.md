@@ -625,7 +625,7 @@ Continued use of the Service after changes constitutes acceptance of the updated
 If you have questions about this Privacy Policy or our data practices:
 
 **Email:** privacy@findback.app *(coming soon)*  
-**GitHub:** [github.com/pirinthaban/lostAndFinder](https://github.com/pirinthaban/lostAndFinder)  
+**GitHub:** [github.com/pirinthaban/FindBack](https://github.com/pirinthaban/FindBack)  
 **In-App:** Settings → Help & Support → Privacy  
 
 ### 15.2 Data Protection Officer

@@ -1,12 +1,12 @@
 name: lost_and_finder
-description: Open-source Lost & Found Community App for Sri Lanka with AI-powered matching, offline support, and trust-driven ecosystem.
+description: Open-source Lost & Found Community App for Sri Lanka with smart matching, auto-blur privacy, and trust-driven ecosystem.
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.3+3
 
 # Repository & Issue Tracker
-repository: https://github.com/pirinthaban/lostAndFinder
-issue_tracker: https://github.com/pirinthaban/lostAndFinder/issues
-homepage: https://github.com/pirinthaban/lostAndFinder
+repository: https://github.com/pirinthaban/FindBack
+issue_tracker: https://github.com/pirinthaban/FindBack/issues
+homepage: https://github.com/pirinthaban/FindBack
 
 environment:
   sdk: '>=3.2.0 <4.0.0'

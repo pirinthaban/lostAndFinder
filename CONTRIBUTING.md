@@ -7,8 +7,8 @@ Thank you for your interest in contributing! 🎉
 1. **Fork the repository**
 2. **Clone your fork:**
    ```bash
-   git clone https://github.com/pirinthaban/lostAndFinder.git
-   cd lostAndFinder
+   git clone https://github.com/pirinthaban/FindBack.git
+   cd FindBack
    ```
 
 3. **Set up Flutter:**

@@ -7,7 +7,7 @@
 
 ## Step 2: Create New Repository
 1. Click "+" → "New repository"
-2. Repository name: `lostAndFinder`
+2. Repository name: `FindBack`
 3. Description: "Lost & Found Community App for Sri Lanka"
 4. Choose: **Public** (free) or Private (requires payment for Actions)
 5. ✅ Don't check "Initialize with README" (we already have one)
@@ -29,7 +29,7 @@ git add .
 git commit -m "Initial commit: Lost & Found App v1.0.0"
 
 # Add GitHub as remote
-git remote add origin https://github.com/pirinthaban/lostAndFinder.git
+git remote add origin https://github.com/pirinthaban/FindBack.git
 
 # Push to GitHub
 git branch -M main
@@ -140,7 +140,7 @@ git push -u origin feature/new-feature
 ### 1. GitHub Pages (Web Version)
 ```powershell
 # Build for web
-flutter build web --base-href "/lostAndFinder/"
+flutter build web --base-href "/FindBack/"
 
 # Push to gh-pages branch
 git checkout --orphan gh-pages
@@ -152,7 +152,7 @@ git push origin gh-pages --force
 
 # Enable in Settings → Pages → Source: gh-pages
 ```
-Your app will be at: `https://pirinthaban.github.io/lostAndFinder/`
+Your app will be at: `https://pirinthaban.github.io/FindBack/`
 
 ### 2. Firebase Hosting (Recommended)
 ```powershell

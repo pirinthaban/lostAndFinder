@@ -339,7 +339,7 @@ A: AI runs on encrypted data; only metadata is processed, not raw images.
 ## 📧 Contact Us
 
 **Email:** privacy@findback.app *(coming soon)*  
-**GitHub:** [github.com/pirinthaban/lostAndFinder](https://github.com/pirinthaban/lostAndFinder)  
+**GitHub:** [github.com/pirinthaban/FindBack](https://github.com/pirinthaban/FindBack)  
 **In-App Support:** Settings → Help & Support  
 
 ---

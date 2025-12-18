@@ -31,8 +31,8 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/pirinthaban/lostAndFinder.git
-cd lostAndFinder
+git clone https://github.com/pirinthaban/FindBack.git
+cd FindBack
 
 # Install dependencies
 flutter pub get
@@ -1088,9 +1088,9 @@ Want to be listed here? [Contribute!](CONTRIBUTING.md)
 
 ## 📞 Support & Community
 
-- 🐛 **Bug Reports:** [Open an issue](https://github.com/pirinthaban/lostAndFinder/issues)
-- 💡 **Feature Requests:** [Open an issue](https://github.com/pirinthaban/lostAndFinder/issues)
-- 💬 **Discussions:** [GitHub Discussions](https://github.com/pirinthaban/lostAndFinder/discussions)
+- 🐛 **Bug Reports:** [Open an issue](https://github.com/pirinthaban/FindBack/issues)
+- 💡 **Feature Requests:** [Open an issue](https://github.com/pirinthaban/FindBack/issues)
+- 💬 **Discussions:** [GitHub Discussions](https://github.com/pirinthaban/FindBack/discussions)
 - 📧 **Email:** your.email@example.com (optional)
 
 ---
@@ -1125,7 +1125,7 @@ If this project helped you, please give it a ⭐ on GitHub!
 
 ## 📊 Project Stats
 
-![GitHub stars](https://img.shields.io/github/stars/pirinthaban/lostAndFinder?style=social)
-![GitHub forks](https://img.shields.io/github/forks/pirinthaban/lostAndFinder?style=social)
-![GitHub issues](https://img.shields.io/github/issues/pirinthaban/lostAndFinder)
-![GitHub license](https://img.shields.io/github/license/pirinthaban/lostAndFinder)
+![GitHub stars](https://img.shields.io/github/stars/pirinthaban/FindBack?style=social)
+![GitHub forks](https://img.shields.io/github/forks/pirinthaban/FindBack?style=social)
+![GitHub issues](https://img.shields.io/github/issues/pirinthaban/FindBack)
+![GitHub license](https://img.shields.io/github/license/pirinthaban/FindBack)
