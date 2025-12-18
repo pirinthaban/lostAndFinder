@@ -630,8 +630,7 @@ class _ItemCard extends StatelessWidget {
                           onPressed: () {
                             if (item['id'] != null) {
                               context.push('/item/${item['id']}');
-                            }
-                          },
+                            } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Error: Item ID not found')),
                               );

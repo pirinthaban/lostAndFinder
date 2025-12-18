@@ -223,12 +223,12 @@ class AppTheme {
       color: Color(0xFFE5E7EB),
       thickness: 1,
     ),
-    dialogTheme: DialogTheme(
+    dialogTheme: const DialogThemeData(
       backgroundColor: surfaceColor,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.all(Radius.circular(20)),
       ),
-      titleTextStyle: const TextStyle(
+      titleTextStyle: TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.bold,
         color: textPrimary,

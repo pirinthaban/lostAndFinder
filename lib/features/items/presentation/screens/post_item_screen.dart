@@ -313,8 +313,6 @@ class _PostItemScreenState extends State<PostItemScreen> {
                               fontWeight: FontWeight.bold,
                               color: color,
                             ),
-                              color: color,
-                            ),
                           ),
                           const SizedBox(height: 4),
                           Text(
