@@ -3,6 +3,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/services/version_checker_service.dart';
+import '../../../../core/widgets/update_dialog.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -12,6 +14,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final _versionChecker = VersionCheckerService();
+
   @override
   void initState() {
     super.initState();
@@ -20,6 +24,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _navigateToNext() async {
     await Future.delayed(const Duration(seconds: 2));
+    
+    if (!mounted) return;
+
+    // Check for app updates
+    await _checkForUpdates();
     
     if (!mounted) return;
     
@@ -43,6 +52,34 @@ class _SplashScreenState extends State<SplashScreen> {
     } else {
       // User has completed onboarding/terms but not logged in
       context.go('/login');
+    }
+  }
+
+  Future<void> _checkForUpdates() async {
+    try {
+      final versionInfo = await _versionChecker.checkForUpdate();
+      
+      if (versionInfo == null) return;
+      
+      final shouldShow = await _versionChecker.shouldShowUpdateDialog(versionInfo);
+      
+      if (!shouldShow || !mounted) return;
+
+      // Show update dialog
+      await showDialog(
+        context: context,
+        barrierDismissible: !versionInfo.forceUpdate,
+        builder: (context) => UpdateDialog(
+          versionInfo: versionInfo,
+          onDismiss: () {
+            _versionChecker.dismissVersion(versionInfo.latestVersion);
+            Navigator.of(context).pop();
+          },
+        ),
+      );
+    } catch (e) {
+      // Silently fail - don't block app startup
+      print('Update check failed: $e');
     }
   }
 

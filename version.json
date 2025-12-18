@@ -1,0 +1,14 @@
+{
+  "latestVersion": "1.0.3",
+  "latestBuildNumber": 3,
+  "downloadUrl": "https://github.com/pirinthaban/findback/releases/download/v1.0.3/FindBack-v1.0.3.apk",
+  "releaseNotes": [
+    "✨ Updated app features descriptions",
+    "🔒 Enhanced privacy features",
+    "🐛 Bug fixes and improvements",
+    "📱 Better user experience"
+  ],
+  "minSupportedVersion": "1.0.0",
+  "forceUpdate": false,
+  "releaseDate": "2025-12-18"
+}
