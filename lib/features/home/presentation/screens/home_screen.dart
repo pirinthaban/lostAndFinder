@@ -70,6 +70,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showPostOptions(BuildContext context) {
+    final theme = Theme.of(context);
+    
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -80,52 +82,61 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'What would you like to post?',
-              style: TextStyle(
-                fontSize: 18,
+              style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             ListTile(
               leading: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFA726).withOpacity(0.1),
+                  color: theme.colorScheme.secondary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.search,
-                  color: Color(0xFFFFA726),
+                  color: theme.colorScheme.secondary,
                 ),
               ),
               title: const Text('I Lost Something'),
               subtitle: const Text('Post details about your lost item'),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.1)),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/post-item', extra: {'itemType': 'lost'});
               },
             ),
+            const SizedBox(height: 12),
             ListTile(
               leading: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4CAF50).withOpacity(0.1),
+                  color: theme.colorScheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
-                  Icons.favorite,
-                  color: Color(0xFF4CAF50),
+                child: Icon(
+                  Icons.check_circle_outline,
+                  color: theme.colorScheme.primary,
                 ),
               ),
               title: const Text('I Found Something'),
               subtitle: const Text('Help someone find their lost item'),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.1)),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/post-item', extra: {'itemType': 'found'});
               },
             ),
+            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -409,18 +420,17 @@ class _ItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final isLost = item['type'] == 'lost';
-    final statusColor = isLost ? const Color(0xFFFFA726) : const Color(0xFF4CAF50);
+    final statusColor = isLost ? theme.colorScheme.secondary : theme.colorScheme.primary;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
           context.push('/item/${item['id']}');
         },
-        borderRadius: BorderRadius.circular(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -431,7 +441,7 @@ class _ItemCard extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 20,
-                    backgroundColor: Colors.grey[300],
+                    backgroundColor: theme.colorScheme.surfaceContainerHighest,
                     backgroundImage: item['userAvatar'] != null && item['userAvatar'].toString().isNotEmpty
                         ? NetworkImage(item['userAvatar'])
                         : null,
@@ -440,7 +450,10 @@ class _ItemCard extends StatelessWidget {
                             (item['userName'] ?? 'U').toString().isNotEmpty 
                                 ? (item['userName'].toString()[0].toUpperCase())
                                 : 'U',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
                           )
                         : null,
                   ),
@@ -451,16 +464,15 @@ class _ItemCard extends StatelessWidget {
                       children: [
                         Text(
                           item['userName'],
-                          style: const TextStyle(
+                          style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
                         ),
                         Text(
                           item['date'],
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 12,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -471,12 +483,13 @@ class _ItemCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: statusColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: statusColor.withOpacity(0.2)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          isLost ? Icons.search : Icons.favorite,
+                          isLost ? Icons.search : Icons.check_circle,
                           size: 16,
                           color: statusColor,
                         ),
@@ -500,25 +513,25 @@ class _ItemCard extends StatelessWidget {
             if (item['imageUrl'] != null && item['imageUrl'].toString().isNotEmpty)
               Image.network(
                 item['imageUrl'],
-                height: 200,
+                height: 240,
                 width: double.infinity,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     height: 200,
-                    color: Colors.grey[200],
+                    color: theme.colorScheme.surfaceContainerHighest,
                     child: Icon(
                       Icons.broken_image,
-                      size: 64,
-                      color: Colors.grey[400],
+                      size: 48,
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                   );
                 },
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
                   return Container(
-                    height: 200,
-                    color: Colors.grey[200],
+                    height: 240,
+                    color: theme.colorScheme.surfaceContainerHighest,
                     child: const Center(
                       child: CircularProgressIndicator(),
                     ),
@@ -527,12 +540,32 @@ class _ItemCard extends StatelessWidget {
               )
             else
               Container(
-                height: 200,
-                color: Colors.grey[200],
-                child: Icon(
-                  Icons.image_outlined,
-                  size: 64,
-                  color: Colors.grey[400],
+                height: 180,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                  image: DecorationImage(
+                    image: const AssetImage('assets/images/pattern_bg.png'), // Fallback pattern if available
+                    fit: BoxFit.cover,
+                    opacity: 0.1,
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      isLost ? Icons.search_off : Icons.inventory_2_outlined,
+                      size: 48,
+                      color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'No image provided',
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
@@ -544,8 +577,7 @@ class _ItemCard extends StatelessWidget {
                 children: [
                   Text(
                     item['title'],
-                    style: const TextStyle(
-                      fontSize: 18,
+                    style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -554,50 +586,52 @@ class _ItemCard extends StatelessWidget {
                     item['description'],
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                      fontSize: 14,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   Row(
                     children: [
-                      Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
+                      Icon(Icons.location_on_outlined, size: 18, color: theme.colorScheme.primary),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           item['location'],
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 13,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface,
+                            fontWeight: FontWeight.w500,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.grey[200],
+                          color: theme.colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           item['category'],
-                          style: const TextStyle(fontSize: 12),
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () {
-                            debugPrint('View button pressed for item: ${item['id']}');
-                            debugPrint('Item title: ${item['title']}');
                             if (item['id'] != null) {
                               context.push('/item/${item['id']}');
-                            } else {
-                              debugPrint('ERROR: Item ID is null!');
+                            }
+                          },
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Error: Item ID not found')),
                               );

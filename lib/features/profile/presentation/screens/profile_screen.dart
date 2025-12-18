@@ -524,7 +524,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       icon: Icons.post_add,
                       label: 'My Posts',
                       value: myItemsCount.toString(),
-                      color: Colors.blue,
+                      color: Theme.of(context).colorScheme.primary,
                       onTap: () => context.push('/my-posts'),
                     ),
                   ),
@@ -534,7 +534,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       icon: Icons.check_circle,
                       label: 'Resolved',
                       value: resolvedItemsCount.toString(),
-                      color: Colors.green,
+                      color: Theme.of(context).colorScheme.tertiary, // Use tertiary or accent
                       onTap: () => context.push('/my-posts'),
                     ),
                   ),
@@ -544,7 +544,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       icon: Icons.bookmark,
                       label: 'Saved',
                       value: savedItemsCount.toString(),
-                      color: Colors.orange,
+                      color: Theme.of(context).colorScheme.secondary,
                       onTap: () => context.push('/saved-items'),
                     ),
                   ),
@@ -753,30 +753,41 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.1)),
+      ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              Icon(icon, size: 28, color: color),
-              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 24, color: color),
+              ),
+              const SizedBox(height: 12),
               Text(
                 value,
-                style: TextStyle(
-                  fontSize: 20,
+                style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: color,
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 4),
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey[600],
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
                 textAlign: TextAlign.center,
               ),

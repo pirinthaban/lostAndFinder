@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Colors
-  static const Color primaryColor = Color(0xFF1976D2);
-  static const Color secondaryColor = Color(0xFFFF6B35);
-  static const Color accentColor = Color(0xFF4CAF50);
-  static const Color warningColor = Color(0xFFFFA726);
-  static const Color errorColor = Color(0xFFEF5350);
-  static const Color backgroundColor = Color(0xFFF5F5F5);
+  // Modern Color Palette
+  static const Color primaryColor = Color(0xFF4F46E5); // Indigo 600
+  static const Color secondaryColor = Color(0xFFFF6B35); // Vibrant Orange
+  static const Color accentColor = Color(0xFF10B981); // Emerald 500
+  static const Color warningColor = Color(0xFFF59E0B); // Amber 500
+  static const Color errorColor = Color(0xFFEF4444); // Red 500
+  static const Color backgroundColor = Color(0xFFF8F9FA); // Cool Gray 50
   static const Color surfaceColor = Color(0xFFFFFFFF);
-  static const Color textPrimary = Color(0xFF212121);
-  static const Color textSecondary = Color(0xFF757575);
+  static const Color textPrimary = Color(0xFF111827); // Gray 900
+  static const Color textSecondary = Color(0xFF6B7280); // Gray 500
+  static const Color inputFillColor = Color(0xFFF3F4F6); // Gray 100
 
   // Text Theme
   static const TextTheme textTheme = TextTheme(
@@ -19,12 +20,14 @@ class AppTheme {
       fontWeight: FontWeight.bold,
       color: textPrimary,
       fontFamily: 'Poppins',
+      letterSpacing: -0.5,
     ),
     displayMedium: TextStyle(
       fontSize: 28,
       fontWeight: FontWeight.bold,
       color: textPrimary,
       fontFamily: 'Poppins',
+      letterSpacing: -0.5,
     ),
     displaySmall: TextStyle(
       fontSize: 24,
@@ -58,7 +61,7 @@ class AppTheme {
     ),
     labelLarge: TextStyle(
       fontSize: 16,
-      fontWeight: FontWeight.w500,
+      fontWeight: FontWeight.w600,
       color: surfaceColor,
       fontFamily: 'Poppins',
     ),
@@ -71,9 +74,11 @@ class AppTheme {
       seedColor: primaryColor,
       primary: primaryColor,
       secondary: secondaryColor,
+      tertiary: accentColor,
       error: errorColor,
       background: backgroundColor,
       surface: surfaceColor,
+      brightness: Brightness.light,
     ),
     scaffoldBackgroundColor: backgroundColor,
     textTheme: textTheme,
@@ -83,30 +88,34 @@ class AppTheme {
       centerTitle: true,
       iconTheme: IconThemeData(color: textPrimary),
       titleTextStyle: TextStyle(
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: FontWeight.w600,
         color: textPrimary,
         fontFamily: 'Poppins',
       ),
+      scrolledUnderElevation: 0,
     ),
     cardTheme: CardThemeData(
       color: surfaceColor,
-      elevation: 2,
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: Colors.grey.withOpacity(0.1), width: 1),
       ),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: primaryColor,
         foregroundColor: surfaceColor,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
         textStyle: const TextStyle(
           fontSize: 16,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
           fontFamily: 'Poppins',
         ),
       ),
@@ -114,14 +123,14 @@ class AppTheme {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: primaryColor,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         side: const BorderSide(color: primaryColor, width: 1.5),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
         textStyle: const TextStyle(
           fontSize: 16,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
           fontFamily: 'Poppins',
         ),
       ),
@@ -130,49 +139,61 @@ class AppTheme {
       style: TextButton.styleFrom(
         foregroundColor: primaryColor,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
         textStyle: const TextStyle(
           fontSize: 16,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
           fontFamily: 'Poppins',
         ),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: surfaceColor,
+      fillColor: inputFillColor,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: primaryColor, width: 2),
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: primaryColor, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         borderSide: const BorderSide(color: errorColor),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       hintStyle: const TextStyle(
         color: textSecondary,
         fontSize: 14,
         fontFamily: 'Poppins',
       ),
+      prefixIconColor: textSecondary,
+      suffixIconColor: textSecondary,
     ),
     chipTheme: ChipThemeData(
-      backgroundColor: backgroundColor,
-      selectedColor: primaryColor,
+      backgroundColor: inputFillColor,
+      selectedColor: primaryColor.withOpacity(0.1),
       labelStyle: const TextStyle(
         fontSize: 14,
         fontFamily: 'Poppins',
+        color: textPrimary,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      secondaryLabelStyle: const TextStyle(
+        fontSize: 14,
+        fontFamily: 'Poppins',
+        color: primaryColor,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide.none,
       ),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
@@ -180,25 +201,39 @@ class AppTheme {
       selectedItemColor: primaryColor,
       unselectedItemColor: textSecondary,
       type: BottomNavigationBarType.fixed,
-      elevation: 8,
+      elevation: 0,
       selectedLabelStyle: TextStyle(
         fontSize: 12,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         fontFamily: 'Poppins',
       ),
       unselectedLabelStyle: TextStyle(
         fontSize: 12,
+        fontWeight: FontWeight.w500,
         fontFamily: 'Poppins',
       ),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: secondaryColor,
+      backgroundColor: primaryColor,
       foregroundColor: surfaceColor,
       elevation: 4,
+      shape: CircleBorder(),
     ),
     dividerTheme: const DividerThemeData(
-      color: Color(0xFFE0E0E0),
+      color: Color(0xFFE5E7EB),
       thickness: 1,
+    ),
+    dialogTheme: DialogTheme(
+      backgroundColor: surfaceColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      titleTextStyle: const TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        color: textPrimary,
+        fontFamily: 'Poppins',
+      ),
     ),
   );
 

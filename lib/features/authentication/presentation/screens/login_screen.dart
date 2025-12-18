@@ -89,13 +89,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   onPressed: _isLoading ? null : () => context.push('/email-login'),
                   icon: const Icon(Icons.email_outlined),
                   label: const Text('Continue with Email'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -114,11 +107,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   label: const Text('Continue with Google'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.black87,
-                    side: BorderSide(color: Colors.grey[300]!),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    foregroundColor: Theme.of(context).colorScheme.onSurface,
+                    side: BorderSide(color: Theme.of(context).colorScheme.outline.withOpacity(0.3)),
                   ),
                 ),
               ),
@@ -133,11 +123,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   icon: const Icon(Icons.phone_outlined),
                   label: const Text('Continue with Phone'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.black87,
-                    side: BorderSide(color: Colors.grey[300]!),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    foregroundColor: Theme.of(context).colorScheme.onSurface,
+                    side: BorderSide(color: Theme.of(context).colorScheme.outline.withOpacity(0.3)),
                   ),
                 ),
               ),

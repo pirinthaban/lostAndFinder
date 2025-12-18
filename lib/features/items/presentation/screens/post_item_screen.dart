@@ -261,15 +261,17 @@ class _PostItemScreenState extends State<PostItemScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final isLost = widget.itemType == 'lost';
     final title = isLost ? 'I Lost Something' : 'I Found Something';
-    final color = isLost ? Colors.red : Colors.green;
+    final color = isLost ? theme.colorScheme.secondary : theme.colorScheme.primary;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
-        backgroundColor: color,
-        foregroundColor: Colors.white,
+        backgroundColor: theme.colorScheme.surface,
+        foregroundColor: theme.colorScheme.onSurface,
+        elevation: 0,
       ),
       body: Form(
         key: _formKey,
@@ -279,14 +281,26 @@ class _PostItemScreenState extends State<PostItemScreen> {
             // Status Card
             Card(
               color: color.withOpacity(0.1),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: color.withOpacity(0.2)),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    Icon(
-                      isLost ? Icons.search_off : Icons.search,
-                      color: color,
-                      size: 32,
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        isLost ? Icons.search_off : Icons.check_circle_outline,
+                        color: color,
+                        size: 32,
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -295,9 +309,10 @@ class _PostItemScreenState extends State<PostItemScreen> {
                         children: [
                           Text(
                             title,
-                            style: TextStyle(
-                              fontSize: 18,
+                            style: theme.textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
+                              color: color,
+                            ),
                               color: color,
                             ),
                           ),
