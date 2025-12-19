@@ -1,13 +1,13 @@
 {
   "latestVersion": "1.0.4",
-  "latestBuildNumber": 4,
+  "latestBuildNumber": 5,
   "downloadUrl": "https://github.com/pirinthaban/findback/releases/download/v1.0.4/FindBack-v1.0.4.apk",
   "releaseNotes": [
+    "🐛 Fixed update notification appearing too frequently",
     "🎨 Brand new modern UI design",
     "✨ Improved home screen with better item cards",
     "🖌️ Fresh color palette (Indigo & Orange)",
-    "👤 Redesigned profile and stats",
-    "📱 Better user experience"
+    "👤 Redesigned profile and stats"
   ],
   "minSupportedVersion": "1.0.0",
   "forceUpdate": false,

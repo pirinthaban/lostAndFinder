@@ -65,6 +65,10 @@ class _SplashScreenState extends State<SplashScreen> {
       
       if (!shouldShow || !mounted) return;
 
+      // Mark as checked immediately to prevent spamming (24h cooldown)
+      // This ensures even if user clicks outside/kills app, it won't show again immediately
+      await _versionChecker.markVersionChecked();
+
       // Show update dialog
       await showDialog(
         context: context,
