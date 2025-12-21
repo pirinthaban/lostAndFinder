@@ -47,6 +47,15 @@ dependencies:
   # Version checking and URL launcher
   package_info_plus: ^8.1.2
   url_launcher: ^6.3.1
+  google_mlkit_text_recognition: ^0.15.0
+  google_mlkit_face_detection: ^0.13.1
+  image: ^4.7.1
+  flutter_local_notifications: ^19.5.0
+  geolocator: ^14.0.2
+  google_mlkit_translation: ^0.13.0
+  crypto: ^3.0.3
+  share_plus: ^12.0.1
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:

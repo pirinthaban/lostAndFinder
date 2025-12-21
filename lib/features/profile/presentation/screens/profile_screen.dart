@@ -20,6 +20,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Map<String, dynamic>? userData;
   bool isLoading = true;
   bool isUploadingImage = false;
+  bool isAdmin = false; // Admin status
   int myItemsCount = 0;
   int resolvedItemsCount = 0;
   int savedItemsCount = 0;
@@ -46,6 +47,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (userDoc.exists) {
         userData = userDoc.data();
+        // Check if user is admin (hardcoded admins + Firestore flag)
+        final adminEmails = [
+          'pirinthaban@gmail.com',
+          'www.pirinthaban@gmail.com',
+        ];
+        isAdmin = userData?['isAdmin'] == true || 
+                  userData?['role'] == 'admin' ||
+                  adminEmails.contains(currentUser!.email?.toLowerCase());
       } else {
         // Create basic user data if doesn't exist
         userData = {
@@ -611,6 +620,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
+
+            // Admin Section - Only visible to admins
+            if (isAdmin)
+              _buildMenuSection(
+                context,
+                title: 'Administration',
+                items: [
+                  _MenuItem(
+                    icon: Icons.admin_panel_settings,
+                    title: 'Admin Dashboard',
+                    subtitle: 'Manage users, items & reports',
+                    onTap: () {
+                      context.push('/admin-login');
+                    },
+                  ),
+                  _MenuItem(
+                    icon: Icons.local_police_outlined,
+                    title: 'Police Portal',
+                    subtitle: 'Law enforcement access',
+                    onTap: () {
+                      context.push('/police-dashboard');
+                    },
+                  ),
+                ],
+              ),
 
             _buildMenuSection(
               context,

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'firebase_options.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/services/notification_service.dart';
 // import 'core/utils/logger.dart';
 
 void main() async {
@@ -14,6 +15,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // NOTE: Notification permission is now requested AFTER login (in HomeScreen)
+  // This provides better UX as user understands why we need the permission
 
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([

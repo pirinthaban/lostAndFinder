@@ -5,6 +5,10 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
+import '../../../../core/services/free_ai_service.dart';
+import '../../../../core/services/matching_service.dart';
+import 'package:geolocator/geolocator.dart'; // Add import
+import '../../../../core/services/notification_service.dart';
 
 class PostItemScreen extends StatefulWidget {
   final String? itemType; // 'lost' or 'found'
@@ -20,6 +24,15 @@ class _PostItemScreenState extends State<PostItemScreen> {
   final _descriptionController = TextEditingController();
   final _locationController = TextEditingController();
   final _contactController = TextEditingController();
+  
+  // AI Services (FREE - On-Device)
+  final FreeAIService _aiService = FreeAIService();
+  final MatchingService _matchingService = MatchingService();
+  final NotificationService _notificationService = NotificationService();
+  
+  // Privacy warnings
+  bool _hasPrivacyWarning = false;
+  String _privacyWarningMessage = '';
   
   String _selectedCategory = 'Electronics';
   final List<String> _categories = [
@@ -38,6 +51,40 @@ class _PostItemScreenState extends State<PostItemScreen> {
   bool _isSubmitting = false;
   bool _isPickingImage = false;
   DateTime _selectedDate = DateTime.now();
+  String? _extractedText; 
+  
+  // GPS Location
+  double? _latitude;
+  double? _longitude;
+  bool _isLoadingLocation = false;
+
+  // Process image for text extraction
+  Future<void> _processImageForText(File imageFile) async {
+    setState(() => _isSubmitting = true); 
+    try {
+      final text = await _aiService.extractText(imageFile);
+      if (text.isNotEmpty) {
+        setState(() {
+          _extractedText = (_extractedText ?? '') + '\n' + text;
+          _extractedText = _extractedText!.trim();
+        });
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('✨ OCR Text Extracted!'),
+              duration: Duration(seconds: 1),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('OCR Error: $e');
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -45,7 +92,112 @@ class _PostItemScreenState extends State<PostItemScreen> {
     _descriptionController.dispose();
     _locationController.dispose();
     _contactController.dispose();
+    _aiService.dispose();
     super.dispose();
+  }
+
+  /// Check image for privacy concerns (NIC, faces)
+  Future<void> _checkImagePrivacy(File imageFile) async {
+    try {
+      // Check for NIC numbers (returns list of detected NICs)
+      final nicNumbers = await _aiService.detectNICInImage(imageFile);
+      final hasNIC = nicNumbers.isNotEmpty;
+      
+      // Check for faces (returns list of face bounding boxes)
+      final faces = await _aiService.detectFaces(imageFile);
+      final hasFaces = faces.isNotEmpty;
+      
+      if (hasNIC || hasFaces) {
+        String warning = '';
+        if (hasNIC && hasFaces) {
+          warning = '⚠️ This image contains NIC number and faces. Consider blurring sensitive information.';
+        } else if (hasNIC) {
+          warning = '⚠️ This image may contain NIC number. Consider blurring it for privacy.';
+        } else {
+          warning = '⚠️ This image contains ${faces.length} face(s). Consider if this is appropriate.';
+        }
+        
+        setState(() {
+          _hasPrivacyWarning = true;
+          _privacyWarningMessage = warning;
+        });
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(warning),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Privacy check error: $e');
+    }
+  }
+  
+  /// Get current GPS location
+  Future<void> _getCurrentLocation() async {
+    setState(() => _isLoadingLocation = true);
+    try {
+      // Check permissions
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          throw Exception('Location permission denied');
+        }
+      }
+      
+      if (permission == LocationPermission.deniedForever) {
+        throw Exception('Location permission permanently denied');
+      }
+
+      // Get position
+      final position = await Geolocator.getCurrentPosition();
+      
+      setState(() {
+        _latitude = position.latitude;
+        _longitude = position.longitude;
+        // Optionally update text field to show "GPS Location Set"
+        if (_locationController.text.isEmpty) {
+          _locationController.text = '${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}';
+        }
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('✅ Location set via GPS!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error getting location: $e')),
+      );
+    } finally {
+      setState(() => _isLoadingLocation = false);
+    }
+  }
+
+  /// Generate search keywords for better matching
+  List<String> _generateSearchKeywords() {
+    final keywords = <String>{};
+    
+    // Add title words
+    final titleWords = _titleController.text.trim().toLowerCase().split(RegExp(r'\s+'));
+    keywords.addAll(titleWords.where((w) => w.length > 2));
+    
+    // Add description words
+    final descWords = _descriptionController.text.trim().toLowerCase().split(RegExp(r'\s+'));
+    keywords.addAll(descWords.where((w) => w.length > 2));
+    
+    // Add category
+    keywords.add(_selectedCategory.toLowerCase());
+    
+    // Add location words
+    final locWords = _locationController.text.trim().toLowerCase().split(RegExp(r'\s+'));
+    keywords.addAll(locWords.where((w) => w.length > 2));
+    
+    return keywords.toList();
   }
 
   Future<void> _pickImage() async {
@@ -63,17 +215,24 @@ class _PostItemScreenState extends State<PostItemScreen> {
     });
 
     try {
-      final XFile? image = await _picker.pickImage(
-        source: ImageSource.gallery,
+      final List<XFile> images = await _picker.pickMultiImage(
         maxWidth: 1920,
         maxHeight: 1080,
         imageQuality: 85,
       );
 
-      if (image != null) {
-        setState(() {
-          _selectedImages.add(File(image.path));
-        });
+      if (images.isNotEmpty) {
+        for (final image in images) {
+          if (_selectedImages.length >= 5) break;
+          final imageFile = File(image.path);
+          setState(() {
+            _selectedImages.add(imageFile);
+          });
+          // Process for OCR immediately
+          await _processImageForText(imageFile);
+          // Check privacy
+          await _checkImagePrivacy(imageFile);
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -113,9 +272,14 @@ class _PostItemScreenState extends State<PostItemScreen> {
       );
 
       if (photo != null) {
+        final photoFile = File(photo.path);
         setState(() {
-          _selectedImages.add(File(photo.path));
+          _selectedImages.add(photoFile);
         });
+        // Process for OCR immediately
+        await _processImageForText(photoFile);
+        // Check privacy
+        await _checkImagePrivacy(photoFile);
       }
     } catch (e) {
       if (mounted) {
@@ -154,6 +318,7 @@ class _PostItemScreenState extends State<PostItemScreen> {
   }
 
   Future<void> _submitPost() async {
+    final extractedText = _extractedText ?? '';
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -208,6 +373,10 @@ class _PostItemScreenState extends State<PostItemScreen> {
       }
 
       // Create item document in Firestore
+      // Extract text from images for AI matching (FREE - On Device OCR)
+      String extractedText = _extractedText ?? '';
+      debugPrint('Using extracted text: ${extractedText.length} chars');
+      
       final itemData = {
         'title': _titleController.text.trim(),
         'description': _descriptionController.text.trim(),
@@ -221,11 +390,123 @@ class _PostItemScreenState extends State<PostItemScreen> {
         'userEmail': user.email ?? '',
         'createdAt': FieldValue.serverTimestamp(),
         'isResolved': false,
+        // AI-extracted data for better matching
+        'extractedText': extractedText.trim(),
+        'latitude': _latitude, // Save GPS lat
+        'longitude': _longitude, // Save GPS lon
+        'searchKeywords': _generateSearchKeywords(),
       };
 
       debugPrint('Posting item with data: ${itemData.keys}');
-      await FirebaseFirestore.instance.collection('items').add(itemData);
+      final docRef = await FirebaseFirestore.instance.collection('items').add(itemData);
       debugPrint('Item posted successfully');
+      
+      // 🤖 AI MATCHING: Find potential matches (FREE - Runs on device)
+      try {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('🤖 AI is searching for matches...')),
+        );
+
+        final matches = await _matchingService.findMatches(
+          itemId: docRef.id,
+          itemType: widget.itemType ?? 'lost',
+          description: '${_titleController.text} ${_descriptionController.text} $extractedText',
+          category: _selectedCategory,
+          location: _locationController.text.trim(),
+          latitude: _latitude, // Pass GPS lat
+          longitude: _longitude, // Pass GPS lon
+          createdAt: _selectedDate,
+        );
+        
+        // Show result dialog if matches found
+        if (matches.isNotEmpty && mounted) {
+          await showDialog(
+            context: context,
+            barrierDismissible: false, // User must tap button
+            builder: (context) => AlertDialog(
+              title: Row(
+                children: [
+                  const Icon(Icons.auto_awesome, color: Colors.amber),
+                  const SizedBox(width: 8),
+                  const Text('AI Matches Found!'),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('We found ${matches.length} potential matches for your item!'),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: 200,
+                    width: double.maxFinite,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: matches.length,
+                      itemBuilder: (context, index) {
+                        final m = matches[index];
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: m.confidenceColor,
+                              child: Text('${m.confidenceScore.toInt()}%', style: const TextStyle(fontSize: 12, color: Colors.white)),
+                            ),
+                            title: Text(m.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+                            subtitle: Text(m.description, maxLines: 1, overflow: TextOverflow.ellipsis),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close dialog
+                  },
+                  child: const Text('View Matches Later'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close dialog
+                    // Navigate to matches screen (optional, for now just go back)
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        } else if (mounted) {
+          // Optional: Show "No matches" toast if you want, or just silent
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Item posted! No immediate matches found.')),
+          );
+        }
+        
+        if (matches.isNotEmpty) {
+          // Save matches to Firestore (for both users)
+          await _matchingService.saveMatches(
+            docRef.id,
+            matches,
+            itemTitle: _titleController.text.trim(),
+            itemDescription: _descriptionController.text.trim(),
+            itemType: widget.itemType,
+          );
+          
+          // Notify user about matches
+          for (final match in matches) {
+            await _notificationService.showMatchNotification(
+              title: '🎯 Potential Match Found!',
+              body: 'Your ${widget.itemType == 'lost' ? 'lost' : 'found'} item "${_titleController.text.trim()}" has a ${match.confidenceScore.toStringAsFixed(0)}% match with "${match.title}"',
+              payload: match.matchedItemId,
+            );
+          }
+        }
+      } catch (matchError) {
+        debugPrint('Matching error (non-fatal): $matchError');
+      }
 
       if (mounted) {
         final isLostItem = widget.itemType == 'lost';
@@ -235,7 +516,7 @@ class _PostItemScreenState extends State<PostItemScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        // Just pop once to go back to home screen
+        // Navigate back to Home Screen
         Navigator.of(context).pop();
       }
     } catch (e, stackTrace) {
@@ -331,6 +612,61 @@ class _PostItemScreenState extends State<PostItemScreen> {
                 ),
               ),
             ),
+            // Image Picker Section
+            // ... (existing image picker code) ...
+            
+            // Extracted Text Display (New)
+            if (_extractedText != null && _extractedText!.isNotEmpty)
+              Container(
+                margin: const EdgeInsets.only(top: 16),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.text_snippet, size: 16, color: Colors.blue),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'AI Extracted Text',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          icon: const Icon(Icons.close, size: 16, color: Colors.grey),
+                          onPressed: () => setState(() => _extractedText = ''),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      initialValue: _extractedText,
+                      maxLines: null, // Auto expand
+                      style: const TextStyle(fontSize: 13),
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        border: InputBorder.none,
+                        hintText: 'Text from image will appear here...',
+                      ),
+                      onChanged: (value) {
+                        _extractedText = value;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
             const SizedBox(height: 24),
 
             // Title
@@ -395,20 +731,48 @@ class _PostItemScreenState extends State<PostItemScreen> {
             const SizedBox(height: 16),
 
             // Location
-            TextFormField(
-              controller: _locationController,
-              decoration: const InputDecoration(
-                labelText: 'Location *',
-                hintText: 'Where was it lost/found?',
-                prefixIcon: Icon(Icons.location_on),
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a location';
-                }
-                return null;
-              },
+            // Location with GPS
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _locationController,
+                    decoration: const InputDecoration(
+                      labelText: 'Location *',
+                      hintText: 'City, Area (or use GPS)',
+                      prefixIcon: Icon(Icons.location_on),
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please enter a location';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  height: 56, // Match text field height
+                  width: 56,
+                  child: ElevatedButton(
+                    onPressed: _isLoadingLocation ? null : _getCurrentLocation,
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      backgroundColor: Colors.blue[50],
+                      foregroundColor: Colors.blue,
+                    ),
+                    child: _isLoadingLocation
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.my_location),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
 
@@ -456,6 +820,53 @@ class _PostItemScreenState extends State<PostItemScreen> {
               ),
             ),
             const SizedBox(height: 8),
+            
+            // Privacy Warning Card (AI-Powered)
+            if (_hasPrivacyWarning)
+              Card(
+                color: Colors.orange.shade50,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Colors.orange.shade300),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      Icon(Icons.privacy_tip, color: Colors.orange.shade700),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '🤖 AI Privacy Warning',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange.shade800,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _privacyWarningMessage,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.orange.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 18),
+                        onPressed: () => setState(() => _hasPrivacyWarning = false),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            if (_hasPrivacyWarning) const SizedBox(height: 8),
             
             // Image Grid
             if (_selectedImages.isNotEmpty)

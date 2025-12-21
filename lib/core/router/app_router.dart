@@ -19,6 +19,8 @@ import '../../features/profile/presentation/screens/my_posts_screen.dart';
 import '../../features/profile/presentation/screens/saved_items_screen.dart';
 import '../../features/profile/presentation/screens/activity_history_screen.dart';
 import '../../features/police/presentation/screens/police_dashboard_screen.dart';
+import '../../features/admin/presentation/screens/admin_dashboard_screen.dart';
+import '../../features/admin/presentation/screens/admin_login_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -148,6 +150,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/police-dashboard',
         name: 'policeDashboard',
         builder: (context, state) => const PoliceDashboardScreen(),
+      ),
+
+      // Admin Routes
+      GoRoute(
+        path: '/admin-login',
+        name: 'adminLogin',
+        builder: (context, state) => const AdminLoginScreen(),
+      ),
+      GoRoute(
+        path: '/admin-dashboard',
+        name: 'adminDashboard',
+        builder: (context, state) => const AdminDashboardScreen(),
       ),
     ],
     errorBuilder: (context, state) => const SplashScreen(),

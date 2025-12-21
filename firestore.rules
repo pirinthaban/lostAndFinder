@@ -13,7 +13,10 @@ service cloud.firestore {
     
     function isAdmin() {
       return isAuthenticated() && 
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+             (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+              request.auth.token.email == 'pirinthaban@gmail.com' ||
+              request.auth.token.email == 'www.pirinthaban@gmail.com' ||
+              request.auth.token.email == 'admin'); 
     }
     
     function isPolice() {
@@ -90,19 +93,21 @@ service cloud.firestore {
 
     // Matches Collection
     match /matches/{matchId} {
-      // Users can read matches related to their items
+      // Users can read their own matches (userId field stores who the match belongs to)
       allow read: if isAuthenticated() &&
-                     (isOwner(get(/databases/$(database)/documents/items/$(resource.data.lostItemId)).data.userId) ||
-                      isOwner(get(/databases/$(database)/documents/items/$(resource.data.foundItemId)).data.userId) ||
+                     (resource.data.userId == request.auth.uid ||
+                      resource.data.matchedUserId == request.auth.uid ||
                       isAdmin());
       
-      // Only system (cloud functions) can create matches
-      allow create: if false;
+      // Authenticated users can create matches (for on-device AI matching)
+      allow create: if isAuthenticated() &&
+                       (request.resource.data.userId == request.auth.uid || 
+                        request.resource.data.matchedUserId == request.auth.uid);
       
-      // Users can update match status
+      // Users can update their own match status
       allow update: if isAuthenticated() &&
-                       (isOwner(get(/databases/$(database)/documents/items/$(resource.data.lostItemId)).data.userId) ||
-                        isOwner(get(/databases/$(database)/documents/items/$(resource.data.foundItemId)).data.userId));
+                       (resource.data.userId == request.auth.uid ||
+                        resource.data.matchedUserId == request.auth.uid);
       
       // Admins can delete matches
       allow delete: if isAdmin();
@@ -208,7 +213,7 @@ service cloud.firestore {
       allow create: if isAuthenticated() &&
                        request.resource.data.reporterUserId == request.auth.uid &&
                        request.resource.data.status == 'pending' &&
-                       request.resource.data.reason in ['spam', 'fraud', 'inappropriate', 'fake'];
+                       request.resource.data.reason is string;
       
       // Only admins can update reports
       allow update: if isAdmin();

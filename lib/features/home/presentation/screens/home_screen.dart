@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../../chat/presentation/screens/chat_list_screen.dart';
 import '../../../chat/data/chat_service.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
+import '../../../matches/presentation/screens/matches_screen.dart';
+import '../../../../core/services/notification_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,11 +20,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _screens = [
     const HomeFeedScreen(),
-    const SearchScreen(),
+    const MatchesScreen(), // Changed from Search to Matches
     Container(), // Post screen handled by FAB
     const ChatListScreen(),
     const ProfileScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Request notification permission AFTER login
+    _initializeNotifications();
+  }
+
+  Future<void> _initializeNotifications() async {
+    // Small delay to let the home screen render first
+    await Future.delayed(const Duration(milliseconds: 500));
+    await NotificationService().initialize();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +64,8 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
+            icon: Icon(Icons.auto_awesome),
+            label: 'Matches',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.add_circle, size: 32),

@@ -1,8 +1,12 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ItemDetailScreen extends StatefulWidget {
   final String itemId;
@@ -431,11 +435,141 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
     );
   }
 
+  Future<void> _shareItem() async {
+    if (_itemData == null) return;
+    
+    // Show loading indicator since downloading image might take a sec
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Preparing share...'), duration: Duration(seconds: 1)),
+    );
+    
+    final title = _itemData!['title'] ?? 'Item';
+    final status = _itemData!['status'] ?? 'lost';
+    final location = _itemData!['location'] ?? 'Unknown location';
+    final description = _itemData!['description'] ?? '';
+    
+    final shareText = '''
+Check out this ${status.toString().toUpperCase()} item on FindBack!
+
+Title: $title
+Location: $location
+Description: $description
+
+Download FindBack to help connect lost items with their owners!
+https://pirinthaban.github.io/findback/
+''';
+
+    try {
+      // Check if we have an image to share
+      String? imageUrl;
+      final images = _itemData!['images'];
+      if (images is List && images.isNotEmpty) {
+        imageUrl = images[0].toString();
+      }
+
+      if (imageUrl != null && imageUrl.isNotEmpty) {
+        // Download image
+        final response = await http.get(Uri.parse(imageUrl));
+        if (response.statusCode == 200) {
+          final tempDir = await getTemporaryDirectory();
+          final file = File('${tempDir.path}/share_image.jpg');
+          await file.writeAsBytes(response.bodyBytes);
+
+          await Share.shareXFiles(
+            [XFile(file.path)],
+            text: shareText,
+            subject: 'FindBack Item: $title',
+          );
+          return;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error sharing image: $e');
+      // Fallback to text only if image fails
+    }
+
+    // Default text share
+    await Share.share(shareText, subject: 'FindBack Item: $title');
+  }
+
   void _showSuccess(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.green),
     );
+  }
+
+  Future<void> _showReportDialog() async {
+    if (_currentUserId.isEmpty) {
+      _showError('Please sign in to report items');
+      return;
+    }
+
+    String? selectedReason;
+    final reasons = ['Spam', 'Fraud', 'Inappropriate', 'Fake Item', 'Other'];
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Report Item'),
+        content: StatefulBuilder(
+          builder: (context, setState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Why are you reporting this item?'),
+                const SizedBox(height: 16),
+                DropdownButton<String>(
+                  isExpanded: true,
+                  hint: const Text('Select Reason'),
+                  value: selectedReason,
+                  items: reasons.map((r) {
+                    return DropdownMenuItem(value: r, child: Text(r));
+                  }).toList(),
+                  onChanged: (v) => setState(() => selectedReason = v),
+                ),
+              ],
+            );
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, selectedReason),
+            child: const Text('Report'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null) {
+      await _submitReport(result);
+    }
+  }
+
+  Future<void> _submitReport(String reason) async {
+    setState(() => _isActionLoading = true);
+    try {
+      await _firestore.collection('reports').add({
+        'itemId': widget.itemId,
+        'itemTitle': _itemData!['title'],
+        'reportedUserId': _itemData!['userId'],
+        'reporterUserId': _currentUserId,
+        'reason': reason,
+        'status': 'pending',
+        'type': 'item',
+        'description': 'User reported item for $reason',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      _showSuccess('Report submitted successfully. We will review it shortly.');
+    } catch (e) {
+      _showError('Error submitting report: $e');
+    } finally {
+      if (mounted) setState(() => _isActionLoading = false);
+    }
   }
 
   @override
@@ -546,12 +680,40 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
               onPressed: _isActionLoading ? null : _deletePost,
               tooltip: 'Delete post',
             ),
-          // Share button
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: () {
-              _showSuccess('Share coming soon');
+          
+          // More Menu (Report, Share)
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) {
+              if (value == 'share') {
+                _shareItem();
+              } else if (value == 'report') {
+                _showReportDialog();
+              }
             },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'share',
+                child: Row(
+                  children: [
+                    Icon(Icons.share, color: Colors.blue),
+                    SizedBox(width: 8),
+                    Text('Share Item'),
+                  ],
+                ),
+              ),
+              if (!isOwner)
+                const PopupMenuItem(
+                  value: 'report',
+                  child: Row(
+                    children: [
+                      Icon(Icons.flag, color: Colors.red),
+                      SizedBox(width: 8),
+                      Text('Report Item'),
+                    ],
+                  ),
+                ),
+            ],
           ),
         ],
       ),

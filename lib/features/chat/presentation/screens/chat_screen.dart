@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../core/services/notification_service.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatId;
@@ -99,6 +100,52 @@ class _ChatScreenState extends State<ChatScreen> {
         'lastMessage': text,
         'lastMessageTime': FieldValue.serverTimestamp(),
       });
+
+      // Send notification to the other user
+      final otherUserId = widget.extra?['otherUserId'] as String?;
+      final otherUserName = widget.extra?['otherUserName'] as String? ?? 'User';
+      final itemTitle = widget.extra?['itemTitle'] as String? ?? '';
+      
+      if (otherUserId != null && otherUserId.isNotEmpty) {
+        // Get current user's name
+        String senderName = 'Someone';
+        try {
+          final currentUserDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(currentUserId)
+              .get();
+          if (currentUserDoc.exists) {
+            senderName = currentUserDoc.data()?['name'] ?? 
+                        currentUserDoc.data()?['email']?.split('@')[0] ?? 
+                        'Someone';
+          }
+        } catch (e) {
+          debugPrint('Error getting sender name: $e');
+        }
+
+        // Save notification to Firestore for the OTHER user
+        await FirebaseFirestore.instance.collection('notifications').add({
+          'userId': otherUserId, // Notify the OTHER user, not ourselves
+          'title': 'New message from $senderName',
+          'body': text.length > 50 ? '${text.substring(0, 50)}...' : text,
+          'type': 'chat_message',
+          'data': {
+            'chatId': widget.chatId,
+            'senderId': currentUserId,
+            'senderName': senderName,
+            'itemTitle': itemTitle,
+          },
+          'read': false,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+
+        // Show local notification (only works if user has app open)
+        await NotificationService().showLocalNotification(
+          title: 'New message from $senderName',
+          body: text.length > 50 ? '${text.substring(0, 50)}...' : text,
+          payload: 'chat_${widget.chatId}',
+        );
+      }
 
       _messageController.clear();
       
