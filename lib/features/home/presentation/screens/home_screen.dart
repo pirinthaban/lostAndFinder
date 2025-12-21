@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,6 +8,7 @@ import '../../../chat/data/chat_service.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../matches/presentation/screens/matches_screen.dart';
 import '../../../../core/services/notification_service.dart';
+import '../../../../core/services/firebase_messaging_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,17 +28,85 @@ class _HomeScreenState extends State<HomeScreen> {
     const ProfileScreen(),
   ];
 
+  StreamSubscription<QuerySnapshot>? _notificationSubscription;
+  final Set<String> _shownNotificationIds = {};
+
   @override
   void initState() {
     super.initState();
     // Request notification permission AFTER login
     _initializeNotifications();
+    // Start listening for new notifications
+    _startNotificationListener();
+  }
+
+  @override
+  void dispose() {
+    _notificationSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> _initializeNotifications() async {
     // Small delay to let the home screen render first
     await Future.delayed(const Duration(milliseconds: 500));
     await NotificationService().initialize();
+    // Initialize Firebase Cloud Messaging for push notifications
+    await FirebaseMessagingService().initialize();
+  }
+
+  /// Listen for new notifications and show local notifications
+  void _startNotificationListener() {
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUserId == null) return;
+
+    _notificationSubscription = FirebaseFirestore.instance
+        .collection('notifications')
+        .where('userId', isEqualTo: currentUserId)
+        .where('read', isEqualTo: false)
+        .orderBy('createdAt', descending: true)
+        .limit(10)
+        .snapshots()
+        .listen((snapshot) {
+      for (var change in snapshot.docChanges) {
+        // Only show notification for newly added documents
+        if (change.type == DocumentChangeType.added) {
+          final doc = change.doc;
+          final data = doc.data();
+          
+          // Skip if we've already shown this notification
+          if (_shownNotificationIds.contains(doc.id)) continue;
+          _shownNotificationIds.add(doc.id);
+          
+          // Skip if notification is older than 10 seconds (prevent showing old notifications on app start)
+          final createdAt = (data?['createdAt'] as Timestamp?)?.toDate();
+          if (createdAt != null) {
+            final age = DateTime.now().difference(createdAt);
+            if (age.inSeconds > 10) continue;
+          }
+          
+          final title = data?['title'] as String? ?? 'New Notification';
+          final body = data?['body'] as String? ?? '';
+          final type = data?['type'] as String? ?? '';
+          
+          // Show local notification with sound
+          if (type == 'chat_message') {
+            NotificationService().showLocalNotification(
+              title: title,
+              body: body,
+              payload: 'chat_${data?['data']?['chatId'] ?? ''}',
+            );
+          } else {
+            NotificationService().showMatchNotification(
+              title: title,
+              body: body,
+              payload: type,
+            );
+          }
+        }
+      }
+    }, onError: (e) {
+      debugPrint('Notification listener error: $e');
+    });
   }
 
   @override

@@ -5,8 +5,43 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 /// Screen to display AI-matched items
-class MatchesScreen extends StatelessWidget {
+class MatchesScreen extends StatefulWidget {
   const MatchesScreen({super.key});
+
+  @override
+  State<MatchesScreen> createState() => _MatchesScreenState();
+}
+
+class _MatchesScreenState extends State<MatchesScreen> {
+  final Set<String> _deletedMatchIds = {};
+  
+  /// Check if a matched item still exists and is not resolved
+  Future<bool> _isMatchValid(String matchedItemId) async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('items')
+          .doc(matchedItemId)
+          .get();
+      
+      if (!doc.exists) return false;
+      
+      final data = doc.data();
+      if (data?['isResolved'] == true) return false;
+      
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Delete invalid match from Firestore
+  Future<void> _deleteMatch(String matchId) async {
+    try {
+      await FirebaseFirestore.instance.collection('matches').doc(matchId).delete();
+    } catch (e) {
+      debugPrint('Error deleting match: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +55,9 @@ class MatchesScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              // Force refresh by rebuilding
-              (context as Element).markNeedsBuild();
+              setState(() {
+                _deletedMatchIds.clear();
+              });
             },
           ),
         ],
@@ -81,7 +117,10 @@ class MatchesScreen extends StatelessWidget {
                   );
                 }
                 
-                final matches = snapshot.data?.docs ?? [];
+                final allMatches = snapshot.data?.docs ?? [];
+                
+                // Filter out already deleted matches
+                final matches = allMatches.where((doc) => !_deletedMatchIds.contains(doc.id)).toList();
                 
                 if (matches.isEmpty) {
                   return Center(
@@ -117,8 +156,35 @@ class MatchesScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   itemCount: matches.length,
                   itemBuilder: (context, index) {
-                    final match = matches[index].data() as Map<String, dynamic>;
-                    return _MatchCard(match: match);
+                    final doc = matches[index];
+                    final match = doc.data() as Map<String, dynamic>;
+                    final matchedItemId = match['matchedItemId'] as String?;
+                    
+                    // Check if matched item is still valid
+                    return FutureBuilder<bool>(
+                      future: _isMatchValid(matchedItemId ?? ''),
+                      builder: (context, validSnapshot) {
+                        // While checking, show the card normally
+                        if (validSnapshot.connectionState == ConnectionState.waiting) {
+                          return _MatchCard(match: match);
+                        }
+                        
+                        // If match is invalid, hide it and mark for deletion
+                        if (validSnapshot.data == false) {
+                          // Schedule deletion
+                          Future.microtask(() {
+                            if (!_deletedMatchIds.contains(doc.id)) {
+                              _deletedMatchIds.add(doc.id);
+                              _deleteMatch(doc.id);
+                              if (mounted) setState(() {});
+                            }
+                          });
+                          return const SizedBox.shrink();
+                        }
+                        
+                        return _MatchCard(match: match);
+                      },
+                    );
                   },
                 );
               },

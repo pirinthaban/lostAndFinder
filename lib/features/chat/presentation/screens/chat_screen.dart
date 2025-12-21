@@ -139,12 +139,8 @@ class _ChatScreenState extends State<ChatScreen> {
           'createdAt': FieldValue.serverTimestamp(),
         });
 
-        // Show local notification (only works if user has app open)
-        await NotificationService().showLocalNotification(
-          title: 'New message from $senderName',
-          body: text.length > 50 ? '${text.substring(0, 50)}...' : text,
-          payload: 'chat_${widget.chatId}',
-        );
+        // NOTE: Local notification is now handled by the notification listener in HomeScreen
+        // This ensures the notification is shown to the RECEIVER, not the sender
       }
 
       _messageController.clear();

@@ -297,6 +297,9 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
           'resolvedBy': _currentUserId,
         });
 
+        // Clean up matches for this resolved item
+        await _deleteMatchesForItem(widget.itemId);
+
         _showSuccess('Item marked as resolved!');
         if (mounted) context.pop();
       } else {
@@ -395,6 +398,9 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
         debugPrint('Error deleting notifications: $e');
       }
 
+      // Delete related matches
+      await _deleteMatchesForItem(widget.itemId);
+
       // Delete from current user's saved items only
       try {
         if (_currentUserId.isNotEmpty) {
@@ -433,6 +439,35 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
+  }
+
+  /// Delete all matches associated with this item
+  Future<void> _deleteMatchesForItem(String itemId) async {
+    try {
+      // Delete matches where this item is the source
+      final matchesAsSource = await _firestore
+          .collection('matches')
+          .where('itemId', isEqualTo: itemId)
+          .get();
+      
+      for (var match in matchesAsSource.docs) {
+        await match.reference.delete();
+      }
+      debugPrint('Deleted ${matchesAsSource.docs.length} matches (as source)');
+
+      // Delete matches where this item is the matched item
+      final matchesAsTarget = await _firestore
+          .collection('matches')
+          .where('matchedItemId', isEqualTo: itemId)
+          .get();
+      
+      for (var match in matchesAsTarget.docs) {
+        await match.reference.delete();
+      }
+      debugPrint('Deleted ${matchesAsTarget.docs.length} matches (as target)');
+    } catch (e) {
+      debugPrint('Error deleting matches: $e');
+    }
   }
 
   Future<void> _shareItem() async {
@@ -959,11 +994,22 @@ https://pirinthaban.github.io/findback/
 
   /// Details Section Widget
   Widget _buildDetailsSection() {
+    // Format date properly
+    String dateStr = 'Unknown';
+    final dateValue = _itemData!['date'];
+    if (dateValue != null) {
+      if (dateValue is Timestamp) {
+        dateStr = DateFormat('MMM dd, yyyy').format(dateValue.toDate());
+      } else if (dateValue is String) {
+        dateStr = dateValue;
+      }
+    }
+    
     return Column(
       children: [
         _buildDetailRow(Icons.category, 'Category', (_itemData!['category'] ?? 'Other').toString()),
         _buildDetailRow(Icons.location_on, 'Location', (_itemData!['location'] ?? 'Unknown').toString()),
-        _buildDetailRow(Icons.calendar_today, 'Date', (_itemData!['date'] ?? 'Unknown').toString()),
+        _buildDetailRow(Icons.calendar_today, 'Date', dateStr),
         if (_itemData!['contact'] != null && _itemData!['contact'].toString().isNotEmpty)
           _buildDetailRow(Icons.phone, 'Contact', _itemData!['contact'].toString()),
       ],
