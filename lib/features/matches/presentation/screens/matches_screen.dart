@@ -1,47 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 /// Screen to display AI-matched items
-class MatchesScreen extends StatefulWidget {
+class MatchesScreen extends StatelessWidget {
   const MatchesScreen({super.key});
-
-  @override
-  State<MatchesScreen> createState() => _MatchesScreenState();
-}
-
-class _MatchesScreenState extends State<MatchesScreen> {
-  final Set<String> _deletedMatchIds = {};
-  
-  /// Check if a matched item still exists and is not resolved
-  Future<bool> _isMatchValid(String matchedItemId) async {
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection('items')
-          .doc(matchedItemId)
-          .get();
-      
-      if (!doc.exists) return false;
-      
-      final data = doc.data();
-      if (data?['isResolved'] == true) return false;
-      
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  /// Delete invalid match from Firestore
-  Future<void> _deleteMatch(String matchId) async {
-    try {
-      await FirebaseFirestore.instance.collection('matches').doc(matchId).delete();
-    } catch (e) {
-      debugPrint('Error deleting match: $e');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +19,8 @@ class _MatchesScreenState extends State<MatchesScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              setState(() {
-                _deletedMatchIds.clear();
-              });
+              // Force refresh by rebuilding
+              (context as Element).markNeedsBuild();
             },
           ),
         ],
@@ -117,10 +80,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
                   );
                 }
                 
-                final allMatches = snapshot.data?.docs ?? [];
-                
-                // Filter out already deleted matches
-                final matches = allMatches.where((doc) => !_deletedMatchIds.contains(doc.id)).toList();
+                final matches = snapshot.data?.docs ?? [];
                 
                 if (matches.isEmpty) {
                   return Center(
@@ -156,35 +116,8 @@ class _MatchesScreenState extends State<MatchesScreen> {
                   padding: const EdgeInsets.all(16),
                   itemCount: matches.length,
                   itemBuilder: (context, index) {
-                    final doc = matches[index];
-                    final match = doc.data() as Map<String, dynamic>;
-                    final matchedItemId = match['matchedItemId'] as String?;
-                    
-                    // Check if matched item is still valid
-                    return FutureBuilder<bool>(
-                      future: _isMatchValid(matchedItemId ?? ''),
-                      builder: (context, validSnapshot) {
-                        // While checking, show the card normally
-                        if (validSnapshot.connectionState == ConnectionState.waiting) {
-                          return _MatchCard(match: match);
-                        }
-                        
-                        // If match is invalid, hide it and mark for deletion
-                        if (validSnapshot.data == false) {
-                          // Schedule deletion
-                          Future.microtask(() {
-                            if (!_deletedMatchIds.contains(doc.id)) {
-                              _deletedMatchIds.add(doc.id);
-                              _deleteMatch(doc.id);
-                              if (mounted) setState(() {});
-                            }
-                          });
-                          return const SizedBox.shrink();
-                        }
-                        
-                        return _MatchCard(match: match);
-                      },
-                    );
+                    final match = matches[index].data() as Map<String, dynamic>;
+                    return _MatchCard(match: match);
                   },
                 );
               },
@@ -396,108 +329,19 @@ class _MatchCard extends StatelessWidget {
     );
   }
 
-  Future<void> _contactOwner(BuildContext context) async {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please sign in to chat')),
-      );
-      return;
-    }
-
-    final otherUserId = match['matchedUserId'] as String?;
-    final otherUserName = match['matchedUserName'] as String? ?? 'User';
-    final itemId = match['matchedItemId'] as String?;
-    final itemTitle = match['matchedItemTitle'] as String? ?? 'Matched Item';
-
-    if (otherUserId == null || itemId == null) {
-      // Fallback: try standard userId/itemId if not found (just in case)
-      debugPrint('Missing matchedUserId/matchedItemId. match keys: ${match.keys}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cannot start chat: Missing details')),
-      );
-      return;
-    }
-    
-    if (otherUserId == currentUser.uid) {
-       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You matched with your own item!')),
-      );
-      return;     
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Starting chat...'), duration: Duration(seconds: 1)),
-    );
-
-    try {
-      final chatsRef = FirebaseFirestore.instance.collection('chats');
-      
-      final existingChats = await chatsRef
-          .where('itemId', isEqualTo: itemId)
-          .where('participants', arrayContains: currentUser.uid)
-          .get();
-
-      String chatId = '';
-      for (var doc in existingChats.docs) {
-        final participants = List<String>.from(doc.data()['participants'] ?? []);
-        if (participants.contains(otherUserId)) {
-          chatId = doc.id;
-          break;
-        }
-      }
-
-      if (chatId.isEmpty) {
-        final newChat = await chatsRef.add({
-          'participants': [currentUser.uid, otherUserId],
-          'itemId': itemId,
-          'itemTitle': itemTitle,
-          'itemStatus': 'match',
-          'lastMessage': 'Chat started from AI match',
-          'lastMessageTime': FieldValue.serverTimestamp(),
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-        chatId = newChat.id;
-
-        await chatsRef.doc(chatId).collection('messages').add({
-          'text': 'Hi, I found a match for your item: $itemTitle',
-          'senderId': currentUser.uid,
-          'timestamp': FieldValue.serverTimestamp(),
-          'isRead': false,
-        });
-      }
-
-      if (context.mounted) {
-        context.push('/chat/$chatId', extra: {
-          'otherUserId': otherUserId,
-          'otherUserName': otherUserName,
-          'itemTitle': itemTitle,
-          'itemId': itemId,
-        });
-      }
-    } catch (e) {
-      debugPrint('Error starting chat: $e');
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-    }
-  }
-
-  void _showMatchDetails(BuildContext parentContext) {
+  void _showMatchDetails(BuildContext context) {
     final score = (match['confidenceScore'] as num?)?.toDouble() ?? 0;
     final textSimilarity = (match['textSimilarity'] as num?)?.toDouble() ?? 0;
     final locationProximity = (match['locationProximity'] as num?)?.toDouble() ?? 0;
     final timeDifference = (match['timeDifference'] as num?)?.toDouble() ?? 0;
     
     showModalBottomSheet(
-      context: parentContext,
+      context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (sheetContext) => DraggableScrollableSheet(
+      builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.6,
         minChildSize: 0.4,
         maxChildSize: 0.9,
@@ -576,8 +420,13 @@ class _MatchCard extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.pop(sheetContext);
-                    _contactOwner(parentContext);
+                    // Navigate to chat with item owner
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Opening chat...'),
+                      ),
+                    );
                   },
                   icon: const Icon(Icons.chat),
                   label: const Text('Contact Owner'),

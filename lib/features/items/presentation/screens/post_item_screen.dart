@@ -318,7 +318,7 @@ class _PostItemScreenState extends State<PostItemScreen> {
   }
 
   Future<void> _submitPost() async {
-    final extractedText = _extractedText ?? '';
+    // Note: _extractedText could be used for AI matching enhancement
     if (!_formKey.currentState!.validate()) {
       return;
     }

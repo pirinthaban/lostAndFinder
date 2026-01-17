@@ -1,0 +1,70 @@
+﻿Running Gradle task 'assembleDebug'...                          
+flutter.bat : lib/features/i
+tems/presentation/screens/it
+em_detail_screen.dart:629:17
+: Error: The method 
+'_shareItem' isn't defined 
+for the type 
+'_ItemDetailScreenState'.
+At line:1 char:63
++ ... tudio\jbr"; & "C:\src\
+flutter\bin\flutter.bat" 
+build apk --debug > bu ...
++                 ~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: (lib/f  
+  eatures/it...ilScreenSt   
+ ate'.:String) [], Remot    
+eException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+ - '_ItemDetailScreenState' 
+is from 'package:lost_and_fi
+nder/features/items/presenta
+tion/screens/item_detail_scr
+een.dart' ('lib/features/ite
+ms/presentation/screens/item
+_detail_screen.dart').
+Try correcting the name to 
+the name of an existing 
+method, or defining a 
+method named '_shareItem'.
+                
+_shareItem();
+                ^^^^^^^^^^
+Target 
+kernel_snapshot_program 
+failed: Exception
+
+
+FAILURE: Build failed with 
+an exception.
+
+* What went wrong:
+Execution failed for task ':
+app:compileFlutterBuildDebug
+'.
+> Process 'command 'C:\src\f
+lutter\bin\flutter.bat'' 
+finished with non-zero exit 
+value 1
+
+* Try:
+> Run with --stacktrace 
+option to get the stack 
+trace.
+> Run with --info or 
+--debug option to get more 
+log output.
+> Run with --scan to get 
+full insights.
+> Get more help at 
+https://help.gradle.org.
+
+BUILD FAILED in 9s
+Running Gradle task 'assembleDebug'...                              9.9s
+Gradle task assembleDebug 
+failed with exit code 1

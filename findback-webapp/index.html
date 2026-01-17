@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FindBack - Lost & Found Web App</title>
+    <meta name="description"
+        content="Report lost items, find what you've lost, and connect with your community - all from your browser.">
+    <meta name="theme-color" content="#667eea">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="app.css">
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loader">
+                <div class="loader-icon">🔍</div>
+                <div class="loader-text">FindBack</div>
+                <div class="loader-spinner"></div>
+            </div>
+        </div>
+
+        <!-- Auth Screen -->
+        <div id="auth-screen" class="screen" style="display: none;">
+            <div class="auth-container">
+                <div class="auth-header">
+                    <div class="auth-logo">🔍</div>
+                    <h1>FindBack</h1>
+                    <p>Lost & Found Community</p>
+                </div>
+
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">Login</button>
+                    <button class="auth-tab" data-tab="signup">Sign Up</button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="login-email" required placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="login-password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <span>Login</span>
+                    </button>
+                </form>
+
+                <!-- Signup Form -->
+                <form id="signup-form" class="auth-form" style="display: none;">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="signup-name" required placeholder="Your name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="signup-email" required placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="signup-password" required placeholder="Min 6 characters">
+                    </div>
+                    <div class="form-group">
+                        <label>District</label>
+                        <select id="signup-district" required>
+                            <option value="">Select District</option>
+                            <option value="Colombo">Colombo</option>
+                            <option value="Gampaha">Gampaha</option>
+                            <option value="Kalutara">Kalutara</option>
+                            <option value="Kandy">Kandy</option>
+                            <option value="Matale">Matale</option>
+                            <option value="Nuwara Eliya">Nuwara Eliya</option>
+                            <option value="Galle">Galle</option>
+                            <option value="Matara">Matara</option>
+                            <option value="Hambantota">Hambantota</option>
+                            <option value="Jaffna">Jaffna</option>
+                            <option value="Kilinochchi">Kilinochchi</option>
+                            <option value="Mannar">Mannar</option>
+                            <option value="Mullaitivu">Mullaitivu</option>
+                            <option value="Vavuniya">Vavuniya</option>
+                            <option value="Trincomalee">Trincomalee</option>
+                            <option value="Batticaloa">Batticaloa</option>
+                            <option value="Ampara">Ampara</option>
+                            <option value="Kurunegala">Kurunegala</option>
+                            <option value="Puttalam">Puttalam</option>
+                            <option value="Anuradhapura">Anuradhapura</option>
+                            <option value="Polonnaruwa">Polonnaruwa</option>
+                            <option value="Badulla">Badulla</option>
+                            <option value="Monaragala">Monaragala</option>
+                            <option value="Ratnapura">Ratnapura</option>
+                            <option value="Kegalle">Kegalle</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <span>Create Account</span>
+                    </button>
+                </form>
+
+                <div class="auth-divider">
+                    <span>or continue with</span>
+                </div>
+
+                <button id="google-signin" class="btn btn-google">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="#4285F4"
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853"
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05"
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                        <path fill="#EA4335"
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                    </svg>
+                    <span>Google</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="main-app" class="screen" style="display: none;">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-left">
+                    <span class="header-logo">🔍</span>
+                    <span class="header-title">FindBack</span>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" id="face-search-btn" title="Search by Face">
+                        <span class="icon">👤</span>
+                    </button>
+                    <button class="header-btn" id="notifications-btn">
+                        <span class="icon">🔔</span>
+                        <span class="badge" id="notification-badge" style="display: none;">0</span>
+                    </button>
+                    <button class="header-btn" id="profile-btn">
+                        <span class="icon">⚙️</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="app-content">
+                <!-- Home Tab -->
+                <div id="home-tab" class="tab-content active">
+                    <!-- Search Bar -->
+                    <div class="search-container">
+                        <input type="text" id="search-input" placeholder="Search lost or found items...">
+                        <button class="search-btn">🔍</button>
+                    </div>
+
+                    <!-- Filter Tabs -->
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-filter="all">All</button>
+                        <button class="filter-tab" data-filter="lost">Lost</button>
+                        <button class="filter-tab" data-filter="found">Found</button>
+                    </div>
+
+                    <!-- Items List -->
+                    <div id="items-list" class="items-grid">
+                        <!-- Items will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Post Tab -->
+                <div id="post-tab" class="tab-content">
+                    <div class="post-container">
+                        <h2>Post an Item</h2>
+
+                        <div class="post-type-selector">
+                            <button class="post-type active" data-type="lost">
+                                <span class="type-icon">😢</span>
+                                <span>I Lost Something</span>
+                            </button>
+                            <button class="post-type" data-type="found">
+                                <span class="type-icon">🎉</span>
+                                <span>I Found Something</span>
+                            </button>
+                        </div>
+
+                        <form id="post-form" class="post-form">
+                            <div class="form-group">
+                                <label>Item Title *</label>
+                                <input type="text" id="item-title" required
+                                    placeholder="e.g., Black Wallet, iPhone 14 Pro">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Category *</label>
+                                <select id="item-category" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Electronics">📱 Electronics</option>
+                                    <option value="Documents">📄 Documents</option>
+                                    <option value="Wallet">👛 Wallet</option>
+                                    <option value="Keys">🔑 Keys</option>
+                                    <option value="Jewelry">💍 Jewelry</option>
+                                    <option value="Bags">👜 Bags</option>
+                                    <option value="Clothing">👕 Clothing</option>
+                                    <option value="Pets">🐕 Pets</option>
+                                    <option value="Other">📦 Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Description *</label>
+                                <textarea id="item-description" required
+                                    placeholder="Describe the item in detail - color, brand, distinguishing features..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>District *</label>
+                                <select id="item-district" required>
+                                    <option value="">Select District</option>
+                                    <option value="Colombo">Colombo</option>
+                                    <option value="Gampaha">Gampaha</option>
+                                    <option value="Kalutara">Kalutara</option>
+                                    <option value="Kandy">Kandy</option>
+                                    <option value="Galle">Galle</option>
+                                    <option value="Jaffna">Jaffna</option>
+                                    <option value="Kurunegala">Kurunegala</option>
+                                    <option value="Ratnapura">Ratnapura</option>
+                                    <option value="Badulla">Badulla</option>
+                                    <option value="Trincomalee">Trincomalee</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Location Details</label>
+                                <input type="text" id="item-location"
+                                    placeholder="e.g., Near Colombo Fort Railway Station">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Photo</label>
+                                <div class="image-upload" id="image-upload">
+                                    <input type="file" id="item-image" accept="image/*" hidden>
+                                    <div class="upload-placeholder">
+                                        <span class="upload-icon">📷</span>
+                                        <span>Tap to add photo</span>
+                                    </div>
+                                    <img id="image-preview" src="" alt="" style="display: none;">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-full">
+                                <span>Post Item</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Matches Tab -->
+                <div id="matches-tab" class="tab-content">
+                    <h2>🎯 AI Matches</h2>
+                    <p class="tab-subtitle">Potential matches for your items</p>
+                    <div id="matches-list" class="matches-list">
+                        <!-- Matches will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Chats Tab -->
+                <div id="chats-tab" class="tab-content">
+                    <h2>💬 Messages</h2>
+                    <div id="chats-list" class="chats-list">
+                        <!-- Chats will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Profile Tab -->
+                <div id="profile-tab" class="tab-content">
+                    <div class="profile-container">
+                        <div class="profile-header">
+                            <div class="profile-avatar" id="profile-avatar">👤</div>
+                            <h2 id="profile-name">User Name</h2>
+                            <p id="profile-email">user@email.com</p>
+                        </div>
+
+                        <div class="profile-stats">
+                            <div class="profile-stat">
+                                <span class="stat-number" id="stat-posted">0</span>
+                                <span class="stat-label">Posted</span>
+                            </div>
+                            <div class="profile-stat">
+                                <span class="stat-number" id="stat-returned">0</span>
+                                <span class="stat-label">Returned</span>
+                            </div>
+                            <div class="profile-stat">
+                                <span class="stat-number" id="stat-reputation">0</span>
+                                <span class="stat-label">Reputation</span>
+                            </div>
+                        </div>
+
+                        <div class="profile-section">
+                            <h3>My Posted Items</h3>
+                            <div id="my-items-list" class="my-items-list">
+                                <!-- User's items will be loaded here -->
+                            </div>
+                        </div>
+
+                        <button id="logout-btn" class="btn btn-danger btn-full">
+                            <span>Logout</span>
+                        </button>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Bottom Navigation -->
+            <nav class="bottom-nav">
+                <button class="nav-item active" data-tab="home">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">Home</span>
+                </button>
+                <button class="nav-item" data-tab="post">
+                    <span class="nav-icon">➕</span>
+                    <span class="nav-label">Post</span>
+                </button>
+                <button class="nav-item" data-tab="matches">
+                    <span class="nav-icon">🎯</span>
+                    <span class="nav-label">Matches</span>
+                </button>
+                <button class="nav-item" data-tab="chats">
+                    <span class="nav-icon">💬</span>
+                    <span class="nav-label">Chats</span>
+                </button>
+                <button class="nav-item" data-tab="profile">
+                    <span class="nav-icon">👤</span>
+                    <span class="nav-label">Profile</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Item Detail Modal -->
+        <div id="item-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <button class="modal-close" id="close-modal">✕</button>
+                <div id="item-detail-content">
+                    <!-- Item details will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Modal -->
+        <div id="chat-modal" class="modal" style="display: none;">
+            <div class="modal-content chat-modal-content">
+                <div class="chat-header">
+                    <button class="chat-back" id="close-chat">←</button>
+                    <div class="chat-user-info">
+                        <span class="chat-user-name" id="chat-user-name">User</span>
+                        <span class="chat-item-title" id="chat-item-title">Item</span>
+                    </div>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Messages will be loaded here -->
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" id="chat-input" placeholder="Type a message...">
+                    <button class="chat-send" id="send-message">➤</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toast-container"></div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="face-search.js"></script>
+</body>
+
+</html>

@@ -13,10 +13,7 @@ service cloud.firestore {
     
     function isAdmin() {
       return isAuthenticated() && 
-             (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
-              request.auth.token.email == 'pirinthaban@gmail.com' ||
-              request.auth.token.email == 'www.pirinthaban@gmail.com' ||
-              request.auth.token.email == 'admin'); 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
     
     function isPolice() {
@@ -59,13 +56,13 @@ service cloud.firestore {
       // Saved Items subcollection
       match /savedItems/{savedItemId} {
         // Users can read their own saved items
-        allow read: if isAuthenticated();
+        allow read: if isAuthenticated() && isOwner(userId);
         
         // Users can create saved items
         allow create: if isAuthenticated() && isOwner(userId);
         
-        // Users can delete saved items
-        allow delete: if isAuthenticated();
+        // Users can delete their own saved items
+        allow delete: if isAuthenticated() && isOwner(userId);
       }
     }
 
@@ -141,8 +138,9 @@ service cloud.firestore {
 
     // Chats Collection
     match /chats/{chatId} {
-      // Allow reading to check if chat exists or if user is participant, or query by itemId
-      allow read: if isAuthenticated();
+      // Participants can read their own chats
+      allow read: if isAuthenticated() && 
+                     request.auth.uid in resource.data.participants;
       
       // Users can create chats - must be a participant
       allow create: if isAuthenticated() &&
@@ -177,8 +175,10 @@ service cloud.firestore {
         allow update: if isAuthenticated() &&
                          request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
         
-        // Senders can delete their own messages, or item owner when deleting post
-        allow delete: if isAuthenticated();
+        // Senders can delete their own messages, participants can delete for cleanup
+        allow delete: if isAuthenticated() &&
+                         (resource.data.senderId == request.auth.uid ||
+                          request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants);
       }
     }
 
@@ -245,19 +245,25 @@ service cloud.firestore {
 
     // Notifications Collection
     match /notifications/{notificationId} {
-      // Users can read notifications sent to them, or query by itemId for deletion
-      allow read: if isAuthenticated();
+      // Users can read their own notifications
+      allow read: if isAuthenticated() &&
+                     (resource.data.userId == request.auth.uid ||
+                      resource.data.ownerId == request.auth.uid ||
+                      isAdmin());
       
-      // Users can create notifications (claims, messages, etc.)
-      allow create: if isAuthenticated() && 
-                       request.resource.data.claimantId == request.auth.uid;
+      // Users can create notifications (claims, messages, matches, etc.)
+      allow create: if isAuthenticated();
       
       // Users can mark notifications as read
       allow update: if isAuthenticated() && 
-                       (isOwner(resource.data.userId) || isOwner(resource.data.ownerId));
+                       (resource.data.userId == request.auth.uid || 
+                        resource.data.ownerId == request.auth.uid);
       
-      // Users can delete their own notifications, or item owner when deleting post
-      allow delete: if isAuthenticated();
+      // Users can delete their own notifications
+      allow delete: if isAuthenticated() &&
+                       (resource.data.userId == request.auth.uid ||
+                        resource.data.ownerId == request.auth.uid ||
+                        isAdmin());
     }
 
     // Audit Logs Collection

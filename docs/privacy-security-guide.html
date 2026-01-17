@@ -1,62 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy & Security Guide - FindBack</title>
-    <meta name="description" content="FindBack Security Guide - How We Protect You">
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
-        rel="stylesheet">
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="app_icon.png">
-
-    <!-- Shared Styles -->
-    <link rel="stylesheet" href="legal-styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: #f5f5f5;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .security-tip {
+            background: #d1ecf1;
+            padding: 20px;
+            border-left: 4px solid #17a2b8;
+            margin: 20px 0;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin: 20px 0;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            margin-top: 40px;
+        }
+    </style>
 </head>
-
 <body>
-    <!-- Animated Background -->
-    <div class="bg-gradient"></div>
-
-    <!-- Navigation -->
-    <nav>
-        <a href="index.html" class="nav-brand">
-            <img src="app_icon.png" alt="FindBack">
-            <span>FindBack</span>
-        </a>
-        <div class="nav-links">
-            <a href="privacy-policy.html">Privacy</a>
-            <a href="terms-and-conditions.html">Terms</a>
-            <a href="privacy-security-guide.html">Security</a>
-            <a href="https://github.com/pirinthaban/findback/releases/latest/download/FindBack_v1.0.4.apk"
-                class="nav-cta">Download</a>
-        </div>
-    </nav>
-
-    <!-- Page Header -->
-    <header class="page-header">
-        <span class="page-icon">🛡️</span>
-        <h1>Security Guide</h1>
+    <header>
+        <h1>🔐 Privacy & Security Guide</h1>
         <p>FindBack - How We Protect You</p>
-        <span class="update-date">Your Safety is Our Priority</span>
     </header>
 
-    <!-- Main Content -->
     <div class="container">
-        <a href="index.html" class="back-link">Back to Home</a>
+        <a href="index.html" class="back-link">← Back to Home</a>
 
         <h2>Our Commitment to Your Safety</h2>
-        <p>At FindBack, trust and security are paramount. This guide explains how we protect your data and what you can
-            do to stay safe.</p>
+        <p>At FindBack, trust and security are paramount. This guide explains how we protect your data and what you can do to stay safe.</p>
 
-        <h2>🔐 How We Protect Your Data</h2>
-
+        <h2>🛡️ How We Protect Your Data</h2>
+        
         <h3>Encryption</h3>
         <ul>
             <li><strong>Messages:</strong> End-to-end encryption (AES-256)</li>
@@ -121,62 +148,39 @@
         <p><strong>Found a vulnerability?</strong></p>
         <ul>
             <li><strong>Email:</strong> security@findback.app</li>
-            <li><strong>GitHub:</strong> <a href="https://github.com/pirinthaban/findback/security">Security
-                    Advisory</a></li>
+            <li><strong>GitHub:</strong> <a href="https://github.com/pirinthaban/FindBack/security">Security Advisory</a></li>
             <li><strong>Response Time:</strong> Within 24 hours</li>
         </ul>
 
         <h2>❓ Frequently Asked Questions</h2>
 
-        <div class="highlight">
-            <p><strong>Q: Can I use FindBack anonymously?</strong><br>
-                A: No, phone verification is required to prevent fraud and ensure accountability.</p>
-        </div>
+        <p><strong>Q: Can I use FindBack anonymously?</strong><br>
+        A: No, phone verification is required to prevent fraud and ensure accountability.</p>
 
-        <div class="highlight">
-            <p><strong>Q: Who can see my phone number?</strong><br>
-                A: Only you, until you choose to share it in chat with specific users.</p>
-        </div>
+        <p><strong>Q: Who can see my phone number?</strong><br>
+        A: Only you, until you choose to share it in chat with specific users.</p>
 
-        <div class="highlight">
-            <p><strong>Q: How long are deleted items kept?</strong><br>
-                A: 30 days in case of accidental deletion, then permanently removed.</p>
-        </div>
+        <p><strong>Q: How long are deleted items kept?</strong><br>
+        A: 30 days in case of accidental deletion, then permanently removed.</p>
 
-        <div class="highlight">
-            <p><strong>Q: Can police access my data?</strong><br>
-                A: Only with a valid legal warrant or court order.</p>
-        </div>
+        <p><strong>Q: Can police access my data?</strong><br>
+        A: Only with a valid legal warrant or court order.</p>
 
-        <div class="highlight">
-            <p><strong>Q: Is my location tracked continuously?</strong><br>
-                A: No, location is only used when posting items or searching nearby.</p>
-        </div>
+        <p><strong>Q: Is my location tracked continuously?</strong><br>
+        A: No, location is only used when posting items or searching nearby.</p>
 
         <h2>📚 Related Documents</h2>
         <ul>
             <li><a href="privacy-policy.html">Privacy Policy</a> - Full legal policy</li>
             <li><a href="terms-and-conditions.html">Terms and Conditions</a> - Service agreement</li>
-            <li><a href="https://github.com/pirinthaban/findback">GitHub Repository</a> - Open source code</li>
+            <li><a href="https://github.com/pirinthaban/FindBack">GitHub Repository</a> - Open source code</li>
         </ul>
 
-        <a href="index.html" class="back-link">Back to Home</a>
+        <a href="index.html" class="back-link">← Back to Home</a>
     </div>
 
-    <!-- Footer -->
     <footer>
-        <div class="footer-content">
-            <div class="footer-links">
-                <a href="index.html">Home</a>
-                <a href="privacy-policy.html">Privacy Policy</a>
-                <a href="terms-and-conditions.html">Terms & Conditions</a>
-                <a href="privacy-security-guide.html">Security Guide</a>
-                <a href="https://github.com/pirinthaban/findback">GitHub</a>
-            </div>
-            <p class="footer-copy">&copy; 2025 <a href="index.html">FindBack</a>. Open-source project under MIT License.
-            </p>
-        </div>
+        <p>&copy; 2025 FindBack. Open-source project under MIT License.</p>
     </footer>
 </body>
-
 </html>

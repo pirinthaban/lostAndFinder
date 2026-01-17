@@ -105,7 +105,7 @@ class MatchingService {
         print('      OTHER TEXT: "$otherText"');
         
         // Calculate match score using text similarity
-        // Calculate match score using text similarity
+        // Calculate match score using enhanced AI matching
         final result = await _aiService.calculateMatchScore(
           description1: myText,
           description2: otherText,
@@ -116,13 +116,25 @@ class MatchingService {
           time1: createdAt,
           time2: otherTime,
           itemType1: itemType,
+          category1: category,
+          category2: otherCategory,
         );
         
-        // Boost score if category matches
+        // Final score from AI already includes category bonus
         double finalScore = result.confidenceScore;
+        
+        // Additional boost for exact category match (since AI gives partial credit for similar categories)
         if (category.toLowerCase() == otherCategory.toLowerCase()) {
-          finalScore += 15; // Bonus for same category
-          print('   ✨ BONUS: Category match (+15%)');
+          finalScore += 10; // Extra bonus for exact same category
+          print('   ✨ BONUS: Exact category match (+10%)');
+        }
+        
+        // Bonus for color/brand matches
+        if (result.colorMatch) {
+          print('   🎨 BONUS: Color match detected');
+        }
+        if (result.brandMatch) {
+          print('   🏷️ BONUS: Brand match detected');
         }
         
         print('   📊 CALCULATION:');

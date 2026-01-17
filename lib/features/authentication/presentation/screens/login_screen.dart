@@ -99,12 +99,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 height: 56,
                 child: OutlinedButton.icon(
                   onPressed: _isLoading ? null : _signInWithGoogle,
-                  icon: Image.asset(
-                    'assets/images/google_logo.png',
-                    height: 24,
-                    errorBuilder: (context, error, stackTrace) => 
-                        const Icon(Icons.login, color: Colors.red),
-                  ),
+                  icon: const Icon(Icons.g_mobiledata, size: 28, color: Colors.red),
                   label: const Text('Continue with Google'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Theme.of(context).colorScheme.onSurface,

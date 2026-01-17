@@ -103,7 +103,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
       // Send notification to the other user
       final otherUserId = widget.extra?['otherUserId'] as String?;
-      final otherUserName = widget.extra?['otherUserName'] as String? ?? 'User';
       final itemTitle = widget.extra?['itemTitle'] as String? ?? '';
       
       if (otherUserId != null && otherUserId.isNotEmpty) {
@@ -139,8 +138,12 @@ class _ChatScreenState extends State<ChatScreen> {
           'createdAt': FieldValue.serverTimestamp(),
         });
 
-        // NOTE: Local notification is now handled by the notification listener in HomeScreen
-        // This ensures the notification is shown to the RECEIVER, not the sender
+        // Show local notification (only works if user has app open)
+        await NotificationService().showLocalNotification(
+          title: 'New message from $senderName',
+          body: text.length > 50 ? '${text.substring(0, 50)}...' : text,
+          payload: 'chat_${widget.chatId}',
+        );
       }
 
       _messageController.clear();

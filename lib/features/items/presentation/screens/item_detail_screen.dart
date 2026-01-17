@@ -1,9 +1,6 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
@@ -297,9 +294,6 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
           'resolvedBy': _currentUserId,
         });
 
-        // Clean up matches for this resolved item
-        await _deleteMatchesForItem(widget.itemId);
-
         _showSuccess('Item marked as resolved!');
         if (mounted) context.pop();
       } else {
@@ -398,9 +392,6 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
         debugPrint('Error deleting notifications: $e');
       }
 
-      // Delete related matches
-      await _deleteMatchesForItem(widget.itemId);
-
       // Delete from current user's saved items only
       try {
         if (_currentUserId.isNotEmpty) {
@@ -441,97 +432,43 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
     );
   }
 
-  /// Delete all matches associated with this item
-  Future<void> _deleteMatchesForItem(String itemId) async {
-    try {
-      // Delete matches where this item is the source
-      final matchesAsSource = await _firestore
-          .collection('matches')
-          .where('itemId', isEqualTo: itemId)
-          .get();
-      
-      for (var match in matchesAsSource.docs) {
-        await match.reference.delete();
-      }
-      debugPrint('Deleted ${matchesAsSource.docs.length} matches (as source)');
-
-      // Delete matches where this item is the matched item
-      final matchesAsTarget = await _firestore
-          .collection('matches')
-          .where('matchedItemId', isEqualTo: itemId)
-          .get();
-      
-      for (var match in matchesAsTarget.docs) {
-        await match.reference.delete();
-      }
-      debugPrint('Deleted ${matchesAsTarget.docs.length} matches (as target)');
-    } catch (e) {
-      debugPrint('Error deleting matches: $e');
-    }
-  }
-
-  Future<void> _shareItem() async {
-    if (_itemData == null) return;
-    
-    // Show loading indicator since downloading image might take a sec
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Preparing share...'), duration: Duration(seconds: 1)),
-    );
-    
-    final title = _itemData!['title'] ?? 'Item';
-    final status = _itemData!['status'] ?? 'lost';
-    final location = _itemData!['location'] ?? 'Unknown location';
-    final description = _itemData!['description'] ?? '';
-    
-    final shareText = '''
-Check out this ${status.toString().toUpperCase()} item on FindBack!
-
-Title: $title
-Location: $location
-Description: $description
-
-Download FindBack to help connect lost items with their owners!
-https://pirinthaban.github.io/findback/
-''';
-
-    try {
-      // Check if we have an image to share
-      String? imageUrl;
-      final images = _itemData!['images'];
-      if (images is List && images.isNotEmpty) {
-        imageUrl = images[0].toString();
-      }
-
-      if (imageUrl != null && imageUrl.isNotEmpty) {
-        // Download image
-        final response = await http.get(Uri.parse(imageUrl));
-        if (response.statusCode == 200) {
-          final tempDir = await getTemporaryDirectory();
-          final file = File('${tempDir.path}/share_image.jpg');
-          await file.writeAsBytes(response.bodyBytes);
-
-          await Share.shareXFiles(
-            [XFile(file.path)],
-            text: shareText,
-            subject: 'FindBack Item: $title',
-          );
-          return;
-        }
-      }
-    } catch (e) {
-      debugPrint('Error sharing image: $e');
-      // Fallback to text only if image fails
-    }
-
-    // Default text share
-    await Share.share(shareText, subject: 'FindBack Item: $title');
-  }
-
   void _showSuccess(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.green),
     );
+  }
+
+  /// Share item via system share dialog
+  Future<void> _shareItem() async {
+    if (_itemData == null) return;
+
+    try {
+      final title = _itemData!['title'] ?? 'Item';
+      final type = _itemData!['status'] == 'lost' ? 'Lost' : 'Found';
+      final category = _itemData!['category'] ?? 'Item';
+      final description = _itemData!['description'] ?? '';
+      final district = _itemData!['district'] ?? '';
+
+      final shareText = '''
+🔍 $type $category on FindBack!
+
+📌 $title
+
+📝 $description
+
+📍 Location: $district
+
+Help reunite this item with its owner! Download FindBack app to view details.
+      '''.trim();
+
+      await Share.share(
+        shareText,
+        subject: '$type: $title - FindBack',
+      );
+    } catch (e) {
+      _showError('Error sharing: $e');
+    }
   }
 
   Future<void> _showReportDialog() async {
@@ -994,22 +931,11 @@ https://pirinthaban.github.io/findback/
 
   /// Details Section Widget
   Widget _buildDetailsSection() {
-    // Format date properly
-    String dateStr = 'Unknown';
-    final dateValue = _itemData!['date'];
-    if (dateValue != null) {
-      if (dateValue is Timestamp) {
-        dateStr = DateFormat('MMM dd, yyyy').format(dateValue.toDate());
-      } else if (dateValue is String) {
-        dateStr = dateValue;
-      }
-    }
-    
     return Column(
       children: [
         _buildDetailRow(Icons.category, 'Category', (_itemData!['category'] ?? 'Other').toString()),
         _buildDetailRow(Icons.location_on, 'Location', (_itemData!['location'] ?? 'Unknown').toString()),
-        _buildDetailRow(Icons.calendar_today, 'Date', dateStr),
+        _buildDetailRow(Icons.calendar_today, 'Date', (_itemData!['date'] ?? 'Unknown').toString()),
         if (_itemData!['contact'] != null && _itemData!['contact'].toString().isNotEmpty)
           _buildDetailRow(Icons.phone, 'Contact', _itemData!['contact'].toString()),
       ],

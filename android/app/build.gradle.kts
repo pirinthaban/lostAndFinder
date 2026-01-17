@@ -48,11 +48,6 @@ android {
         multiDexEnabled = true
     }
 
-    lint {
-        abortOnError = false
-        checkReleaseBuilds = false
-    }
-
     signingConfigs {
         create("release") {
             keyAlias = keystoreProperties.getProperty("keyAlias")
@@ -65,7 +60,6 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
     }
 }

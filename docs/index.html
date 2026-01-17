@@ -1,125 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Primary Meta Tags -->
-    <title>FindBack - AI-Powered Lost & Found App for Sri Lanka</title>
-    <meta name="title" content="FindBack - AI-Powered Lost & Found App for Sri Lanka">
-    <meta name="description"
-        content="FindBack is a free, open-source lost and found app that uses AI to automatically match lost items with found items. Report lost items, find owners, and reunite with your belongings. Available for Android.">
-    <meta name="keywords"
-        content="lost and found, find lost items, lost item app, found item app, Sri Lanka, AI matching, lost phone, lost wallet, lost ID, NIC, report lost item, find owner, FindBack app, free lost and found">
-    <meta name="author" content="Pirinthaban">
-    <meta name="robots" content="index, follow">
-    <meta name="language" content="English">
-    <meta name="revisit-after" content="7 days">
-
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://pirinthaban.github.io/findback/">
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://pirinthaban.github.io/findback/">
-    <meta property="og:title" content="FindBack - AI-Powered Lost & Found App">
-    <meta property="og:description"
-        content="Free AI-powered app to report and find lost items. Smart matching technology helps reunite people with their belongings. Download now for Android!">
-    <meta property="og:image" content="https://pirinthaban.github.io/findback/app_icon.png">
-    <meta property="og:image:width" content="512">
-    <meta property="og:image:height" content="512">
-    <meta property="og:site_name" content="FindBack">
-    <meta property="og:locale" content="en_US">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://pirinthaban.github.io/findback/">
-    <meta property="twitter:title" content="FindBack - AI-Powered Lost & Found App">
-    <meta property="twitter:description"
-        content="Free AI-powered app to report and find lost items. Smart matching technology helps reunite people with their belongings.">
-    <meta property="twitter:image" content="https://pirinthaban.github.io/findback/app_icon.png">
-
-    <!-- App Links -->
-    <meta property="al:android:package" content="com.findback.app">
-    <meta property="al:android:app_name" content="FindBack">
-    <meta property="al:web:url" content="https://pirinthaban.github.io/findback/">
-
-    <!-- Theme Color -->
-    <meta name="theme-color" content="#6366f1">
-    <meta name="msapplication-TileColor" content="#6366f1">
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="app_icon.png">
-    <link rel="apple-touch-icon" href="app_icon.png">
-
-    <!-- Structured Data (JSON-LD) -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "MobileApplication",
-        "name": "FindBack",
-        "description": "AI-Powered Lost & Found App for Sri Lanka. Report lost items, find owners, and reunite with your belongings using smart AI matching.",
-        "applicationCategory": "UtilitiesApplication",
-        "operatingSystem": "Android",
-        "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-        },
-        "author": {
-            "@type": "Person",
-            "name": "Pirinthaban"
-        },
-        "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "4.8",
-            "ratingCount": "100"
-        },
-        "featureList": [
-            "AI-powered item matching",
-            "Automatic sensitive data blur",
-            "Real-time chat",
-            "Location-based search",
-            "Police integration",
-            "Push notifications"
-        ],
-        "screenshot": "https://pirinthaban.github.io/findback/app_icon.png",
-        "url": "https://pirinthaban.github.io/findback/",
-        "downloadUrl": "https://github.com/pirinthaban/findback/releases/latest/download/FindBack_v1.0.4.apk"
-    }
-    </script>
-
-    <!-- Breadcrumb Structured Data -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [{
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": "https://pirinthaban.github.io/findback/"
-        }]
-    }
-    </script>
-
+    <title>FindBack - The Future of Lost & Found</title>
+    <meta name="description" content="AI-Powered Lost & Found Network">
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap"
-        rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
     <!-- Icons -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-
+    
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
+    
     <!-- Vanilla Tilt (Restored for 3D Card Effects) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
-
+    
     <!-- GSAP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
@@ -168,7 +68,7 @@
         .cursor.hover {
             width: 60px;
             height: 60px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255,255,255,0.1);
         }
 
         .cursor-dot {
@@ -214,6 +114,7 @@
             text-transform: uppercase;
             background: linear-gradient(90deg, var(--accent-1), var(--accent-2), var(--accent-3));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             animation: pulse-text 2s ease-in-out infinite;
         }
@@ -221,7 +122,7 @@
         .loader-bar {
             width: 200px;
             height: 2px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255,255,255,0.1);
             margin-top: 30px;
             border-radius: 2px;
             overflow: hidden;
@@ -235,25 +136,13 @@
         }
 
         @keyframes loading {
-            0% {
-                width: 0%;
-            }
-
-            100% {
-                width: 100%;
-            }
+            0% { width: 0%; }
+            100% { width: 100%; }
         }
 
         @keyframes pulse-text {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.5;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         /* Navigation */
@@ -270,9 +159,6 @@
         }
 
         .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
             font-weight: 900;
             font-size: 1.8rem;
             letter-spacing: 5px;
@@ -281,16 +167,10 @@
             text-transform: uppercase;
         }
 
-        .logo img {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-        }
-
         .nav-cta {
             padding: 15px 35px;
             background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255,255,255,0.3);
             color: #fff;
             text-decoration: none;
             font-weight: 600;
@@ -310,7 +190,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
             transition: 0.5s;
         }
 
@@ -318,7 +198,7 @@
             background: #fff;
             color: #000;
             transform: scale(1.05);
-            box-shadow: 0 0 40px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 40px rgba(255,255,255,0.3);
         }
 
         .nav-cta:hover::before {
@@ -346,7 +226,7 @@
             align-items: center;
             gap: 10px;
             padding: 10px 25px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 50px;
             font-size: 0.9rem;
             letter-spacing: 3px;
@@ -365,15 +245,8 @@
         }
 
         @keyframes blink {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.3;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
 
         .hero h1 {
@@ -398,28 +271,21 @@
         .hero h1 .gradient {
             background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             background-size: 200% 200%;
             animation: gradient-shift 3s ease infinite;
         }
 
         @keyframes gradient-shift {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .hero-desc {
             font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(255,255,255,0.6);
             max-width: 600px;
             margin: 0 auto 50px;
             letter-spacing: 1px;
@@ -441,12 +307,12 @@
             border-radius: 60px;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             opacity: 0;
-            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 0 0 rgba(255,255,255,0.3);
         }
 
         .hero-cta:hover {
             transform: scale(1.1) translateY(-5px);
-            box-shadow: 0 20px 40px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(255,255,255,0.2);
         }
 
         .hero-cta i {
@@ -474,13 +340,13 @@
             font-size: 0.75rem;
             letter-spacing: 3px;
             text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255,255,255,0.5);
         }
 
         .scroll-line {
             width: 1px;
             height: 60px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255,255,255,0.2);
             position: relative;
             overflow: hidden;
         }
@@ -496,13 +362,8 @@
         }
 
         @keyframes scroll-anim {
-            0% {
-                top: -50%;
-            }
-
-            100% {
-                top: 100%;
-            }
+            0% { top: -50%; }
+            100% { top: 100%; }
         }
 
         /* Features Section */
@@ -532,8 +393,8 @@
         }
 
         .feature-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
             border-radius: 30px;
             padding: 50px 40px;
             position: relative;
@@ -563,19 +424,18 @@
         .feature-card:hover {
             /* Removed transform: translateY to let Vanilla Tilt handle the physics */
             border-color: rgba(99, 102, 241, 0.3);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
         }
 
         .feature-number {
             font-size: 8rem;
             font-weight: 900;
-            color: rgba(255, 255, 255, 0.03);
+            color: rgba(255,255,255,0.03);
             position: absolute;
             top: -20px;
             right: 20px;
             line-height: 1;
-            transform: translateZ(20px);
-            /* 3D Depth */
+            transform: translateZ(20px); /* 3D Depth */
         }
 
         .feature-icon {
@@ -589,8 +449,7 @@
             font-size: 2rem;
             margin-bottom: 30px;
             box-shadow: 0 20px 40px var(--glow-1);
-            transform: translateZ(30px);
-            /* 3D Depth */
+            transform: translateZ(30px); /* 3D Depth */
         }
 
         .feature-card h3 {
@@ -599,16 +458,14 @@
             margin-bottom: 15px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            transform: translateZ(20px);
-            /* 3D Depth */
+            transform: translateZ(20px); /* 3D Depth */
         }
 
         .feature-card p {
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255,255,255,0.5);
             line-height: 1.8;
             font-size: 1.05rem;
-            transform: translateZ(20px);
-            /* 3D Depth */
+            transform: translateZ(20px); /* 3D Depth */
         }
 
         /* CTA Section */
@@ -668,7 +525,7 @@
         /* Footer */
         footer {
             padding: 80px 60px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255,255,255,0.05);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -680,7 +537,7 @@
         }
 
         .footer-links a {
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255,255,255,0.5);
             text-decoration: none;
             font-size: 0.9rem;
             letter-spacing: 1px;
@@ -692,7 +549,7 @@
         }
 
         .footer-copy {
-            color: rgba(255, 255, 255, 0.3);
+            color: rgba(255,255,255,0.3);
             font-size: 0.85rem;
         }
 
@@ -701,7 +558,7 @@
             .hero h1 {
                 font-size: clamp(3rem, 12vw, 10rem);
             }
-
+            
             .features-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 20px;
@@ -745,8 +602,7 @@
                 grid-template-columns: 1fr;
             }
 
-            .features,
-            .cta-section {
+            .features, .cta-section {
                 padding: 80px 20px;
             }
 
@@ -758,7 +614,7 @@
             .feature-card {
                 padding: 30px;
             }
-
+            
             .feature-number {
                 font-size: 5rem;
                 top: -10px;
@@ -768,7 +624,7 @@
             .cta-section h2 {
                 font-size: 3rem;
             }
-
+            
             .cta-section::before {
                 width: 300px;
                 height: 300px;
@@ -792,8 +648,7 @@
             }
 
             /* Disable custom cursor on touch devices */
-            .cursor,
-            .cursor-dot {
+            .cursor, .cursor-dot {
                 display: none;
             }
 
@@ -806,12 +661,12 @@
             .hero h1 {
                 font-size: 2.8rem;
             }
-
+            
             .hero-tag {
                 padding: 8px 20px;
                 font-size: 0.8rem;
             }
-
+            
             .loader-text {
                 font-size: 2rem;
                 letter-spacing: 10px;
@@ -819,7 +674,6 @@
         }
     </style>
 </head>
-
 <body>
 
     <!-- Loading Screen -->
@@ -837,13 +691,10 @@
     <!-- Three.js Canvas -->
     <canvas id="webgl-canvas"></canvas>
 
+    <!-- Navigation -->
     <nav>
-        <a href="#" class="logo">
-            <img src="app_icon.png" alt="FindBack">
-            <span>FindBack</span>
-        </a>
-        <a href="https://github.com/pirinthaban/findback/releases/latest/download/FindBack_v1.0.4.apk"
-            class="nav-cta magnetic">
+        <a href="#" class="logo">FindBack</a>
+        <a href="https://github.com/pirinthaban/FindBack/releases/download/v1.0.2/FindBack-v1.0.2.apk" class="nav-cta magnetic">
             Download
         </a>
     </nav>
@@ -853,17 +704,14 @@
         <div class="hero-content">
             <div class="hero-tag">
                 <span class="dot"></span>
-                v1.0.4 Live Now
+                v1.0.2 Live Now
             </div>
             <h1>
                 <span class="line"><span class="word">Lost</span> <span class="word">It?</span></span>
-                <span class="line"><span class="word gradient">Found</span> <span
-                        class="word gradient">It.</span></span>
+                <span class="line"><span class="word gradient">Found</span> <span class="word gradient">It.</span></span>
             </h1>
-            <p class="hero-desc">The next-generation AI-powered recovery network. Join thousands reuniting with what
-                matters most.</p>
-            <a href="https://github.com/pirinthaban/findback/releases/latest/download/FindBack_v1.0.4.apk"
-                class="hero-cta magnetic">
+            <p class="hero-desc">The next-generation AI-powered recovery network. Join thousands reuniting with what matters most.</p>
+            <a href="https://github.com/pirinthaban/FindBack/releases/download/v1.0.2/FindBack-v1.0.2.apk" class="hero-cta magnetic">
                 Get Started <i class="ri-arrow-right-line"></i>
             </a>
         </div>
@@ -887,32 +735,27 @@
                     <i class="ri-brain-line"></i>
                 </div>
                 <h3>Smart Matching</h3>
-                <p>Our intelligent algorithms automatically analyze descriptions, GPS coordinates, and timestamps to
-                    find potential matches with confidence scores up to 70%+.</p>
+                <p>Our intelligent algorithms automatically analyze descriptions, GPS coordinates, and timestamps to find potential matches with confidence scores up to 70%+.</p>
             </div>
 
             <!-- Feature 2: Privacy First -->
             <div class="feature-card" data-tilt data-tilt-glare data-tilt-max-glare="0.1" data-tilt-scale="1.02">
                 <span class="feature-number">02</span>
-                <div class="feature-icon"
-                    style="background: linear-gradient(135deg, var(--accent-2), var(--accent-3));">
+                <div class="feature-icon" style="background: linear-gradient(135deg, var(--accent-2), var(--accent-3));">
                     <i class="ri-shield-check-line"></i>
                 </div>
                 <h3>Privacy First</h3>
-                <p>Google Cloud Vision AI automatically detects and blurs sensitive information like NIC numbers and
-                    faces in uploaded photos. Your data, protected.</p>
+                <p>Google Cloud Vision AI automatically detects and blurs sensitive information like NIC numbers and faces in uploaded photos. Your data, protected.</p>
             </div>
 
             <!-- Feature 3: Location Intelligence -->
             <div class="feature-card" data-tilt data-tilt-glare data-tilt-max-glare="0.1" data-tilt-scale="1.02">
                 <span class="feature-number">03</span>
-                <div class="feature-icon"
-                    style="background: linear-gradient(135deg, var(--accent-3), var(--accent-1));">
+                <div class="feature-icon" style="background: linear-gradient(135deg, var(--accent-3), var(--accent-1));">
                     <i class="ri-map-pin-line"></i>
                 </div>
                 <h3>Location Intelligence</h3>
-                <p>Advanced geolocation tracking with district-level filtering. Our system calculates proximity and
-                    suggests nearby matches automatically.</p>
+                <p>Advanced geolocation tracking with district-level filtering. Our system calculates proximity and suggests nearby matches automatically.</p>
             </div>
 
             <!-- Feature 4: Real-Time Chat -->
@@ -922,8 +765,7 @@
                     <i class="ri-message-3-line"></i>
                 </div>
                 <h3>Secure Messaging</h3>
-                <p>End-to-end encrypted chat built-in. Connect with finders or owners without revealing your phone
-                    number until you're ready.</p>
+                <p>End-to-end encrypted chat built-in. Connect with finders or owners without revealing your phone number until you're ready.</p>
             </div>
 
             <!-- Feature 5: Police Integration -->
@@ -933,8 +775,7 @@
                     <i class="ri-police-car-line"></i>
                 </div>
                 <h3>Police Reports</h3>
-                <p>Direct integration with law enforcement. File official reports and track your case status all from
-                    the app with verified police accounts.</p>
+                <p>Direct integration with law enforcement. File official reports and track your case status all from the app with verified police accounts.</p>
             </div>
 
             <!-- Feature 6: Smart Notifications -->
@@ -944,8 +785,7 @@
                     <i class="ri-notification-3-line"></i>
                 </div>
                 <h3>Smart Notifications</h3>
-                <p>Get instant push notifications for high-confidence matches (>70%), new messages, and claim updates.
-                    Never miss a connection.</p>
+                <p>Get instant push notifications for high-confidence matches (>70%), new messages, and claim updates. Never miss a connection.</p>
             </div>
         </div>
     </section>
@@ -953,8 +793,7 @@
     <!-- CTA Section -->
     <section class="cta-section">
         <h2>Ready?</h2>
-        <a href="https://github.com/pirinthaban/findback/releases/latest/download/FindBack_v1.0.4.apk"
-            class="cta-btn magnetic">
+        <a href="https://github.com/pirinthaban/FindBack/releases/download/v1.0.2/FindBack-v1.0.2.apk" class="cta-btn magnetic">
             Download Now <i class="ri-download-2-line"></i>
         </a>
     </section>
@@ -962,10 +801,9 @@
     <!-- Footer -->
     <footer>
         <div class="footer-links">
-            <a href="https://github.com/pirinthaban/findback">GitHub</a>
+            <a href="https://github.com/pirinthaban/FindBack">GitHub</a>
             <a href="privacy-policy.html">Privacy</a>
             <a href="terms-and-conditions.html">Terms</a>
-            <a href="privacy-security-guide.html">Security</a>
         </div>
         <div class="footer-copy">&copy; 2025 FindBack. Open Source.</div>
     </footer>
@@ -1180,5 +1018,4 @@
         });
     </script>
 </body>
-
 </html>
